@@ -4,7 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.config import settings
 from src.api.clients import router as clients_router
 from src.api.products import router as products_router
-from src.api.auth import router as auth_router # Importando o novo router de auth
+from src.api.auth import router as auth_router
+from src.api.quotes import router as quotes_router # Importando o novo router de orçamentos
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
 
@@ -16,10 +17,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Registrando as rotas
+# Registrando a malha completa de rotas da API
 app.include_router(auth_router, prefix="/api")
 app.include_router(clients_router, prefix="/api")
 app.include_router(products_router, prefix="/api")
+app.include_router(quotes_router, prefix="/api") # Ativando o core engine
 
 @app.get("/")
 def root():
