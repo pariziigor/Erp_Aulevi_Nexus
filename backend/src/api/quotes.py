@@ -5,13 +5,14 @@ from sqlalchemy import func
 from typing import List
 from datetime import datetime
 from uuid import UUID
-
 from src.core.database import get_db
 from src.models.quote import Quote, QuoteItem
 from src.models.product import Product
 from src.models.user import User
 from src.schemas.quotes import QuoteCreate, QuoteResponse
 from src.services.auth import AuthService
+from fastapi.responses import StreamingResponse
+from src.services.pdf import PDFService
 
 router = APIRouter(prefix="/quotes", tags=["Orçamentos / Vendas"])
 
@@ -102,3 +103,40 @@ def criar_orcamento(
 def listar_orcamentos(db: Session = Depends(get_db)):
     """Lista todos os orçamentos emitidos no sistema para controle e auditoria."""
     return db.query(Quote).order_by(Quote.created_at.desc()).all()
+
+@router.get("/{quote_id}/pdf")
+def exportar_orcamento_pdf(quote_id: UUID, db: Session = Depends(get_db)):
+    """
+    Busca o orçamento e gera o arquivo PDF customizado de alta qualidade
+    pronto para download ou impressão pelo vendedor.
+    """
+    # 1. Busca o cabeçalho do orçamento
+    quote = db.query(Quote).filter(Quote.id == quote_id).first()
+    if not quote:
+        raise HTTPException(status_code=404, detail="Orçamento não encontrado.")
+        
+    # 2. Busca os dados do cliente vinculado
+    client = quote.client
+    
+    # 3. Monta os detalhes dos itens com as descrições e códigos do produto
+    items_details = []
+    for item in quote.items:
+        items_details.append({
+            "codigo": item.product.codigo,
+            "descricao": item.product.descricao,
+            "unidade_medida": item.product.unidade_medida,
+            "quantity": item.quantity,
+            "unit_price": item.unit_price,
+            "subtotal": item.subtotal
+        })
+        
+    # 4. Dispara a geração do PDF
+    pdf_file = PDFService.gerar_pdf_orcamento(quote, client, items_details)
+    
+    # 5. Retorna o arquivo como um fluxo de download binário para o navegador
+    filename = f"Orcamento_{quote.numero_orcamento}.pdf"
+    return StreamingResponse(
+        pdf_file, 
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
