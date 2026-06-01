@@ -2,6 +2,8 @@
 from pydantic import BaseModel, Field
 from decimal import Decimal
 from uuid import UUID
+from datetime import datetime
+from typing import Optional
 from src.models.product import CategoryEnum
 
 class ProductBase(BaseModel):
@@ -17,6 +19,8 @@ class ProductCreate(ProductBase):
 
 class ProductResponse(ProductBase):
     id: UUID
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True

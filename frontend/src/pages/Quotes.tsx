@@ -1,7 +1,6 @@
-// frontend/src/pages/Quotes.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import api from '../services/api';
-import { ArrowLeft, Plus, Trash2, Download, FileCheck, Loader2 } from 'lucide-react';
+import { ArrowLeft, Download, FileCheck, Loader2, Plus, Trash2 } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -11,37 +10,66 @@ interface Client {
 
 interface Product {
   id: string;
-  sku: string;
-  name: string;
-  price: number;
-  unit: string;
+  codigo: string;
+  descricao: string;
+  categoria: 'LSF' | 'MM' | 'CHALE';
+  preco: number;
+  unidade_medida: string;
+}
+
+interface Quote {
+  id: string;
+  numero_orcamento: string;
+  status: string;
+  total: number;
+  created_at: string;
 }
 
 interface QuoteItem {
   product_id: string;
-  sku: string;
-  name: string;
+  codigo: string;
+  descricao: string;
   quantity: number;
   price_unit: number;
 }
 
+const paymentOptions = [
+  { value: 'A_VISTA', label: 'A vista' },
+  { value: 'BOLETO', label: 'Boleto' },
+  { value: 'CARTAO', label: 'Cartao' },
+  { value: '30_DIAS', label: '30 dias' },
+  { value: '30_60', label: '30/60' },
+  { value: '30_60_90', label: '30/60/90' },
+  { value: 'ENTRADA_PARCELAS', label: 'Entrada + parcelas' },
+];
+
+const shippingOptions = [
+  { value: 'CIF', label: 'CIF' },
+  { value: 'FOB', label: 'FOB' },
+  { value: 'RETIRADA', label: 'Retirada' },
+  { value: 'ENTREGA_LOCAL', label: 'Entrega local' },
+  { value: 'TRANSPORTADORA', label: 'Transportadora' },
+  { value: 'FRETE_INCLUSO', label: 'Frete incluso' },
+  { value: 'FRETE_A_CALCULAR', label: 'Frete a calcular' },
+];
+
 export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Estados do Formulário de Orçamento
+  const [category, setCategory] = useState<'LSF' | 'MM' | 'CHALE'>('LSF');
   const [selectedClientId, setSelectedClientId] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
   const [quantityInput, setQuantityInput] = useState<number>(1);
   const [items, setItems] = useState<QuoteItem[]>([]);
   const [observations, setObservations] = useState('');
+  const [discount, setDiscount] = useState(0);
+  const [shippingValue, setShippingValue] = useState(0);
+  const [paymentCondition, setPaymentCondition] = useState('A_VISTA');
+  const [shippingType, setShippingType] = useState('FRETE_A_CALCULAR');
 
-  // Novos Estados: Condição de Pagamento e Frete
-  const [paymentCondition, setPaymentCondition] = useState('50_ENTRADA_50_ENTREGA');
-  const [shippingType, setShippingType] = useState('FOB_RETIRADA');
-
-  // Estados de Ação
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,15 +77,17 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   useEffect(() => {
     async function loadInitialData() {
       try {
-        const [clientsRes, productsRes] = await Promise.all([
+        const [clientsRes, productsRes, quotesRes] = await Promise.all([
           api.get('/clients'),
-          api.get('/products')
+          api.get('/products'),
+          api.get('/quotes'),
         ]);
         setClients(clientsRes.data);
         setProducts(productsRes.data);
+        setQuotes(quotesRes.data);
       } catch (err) {
-        console.error('Erro ao carregar dados para orçamentos', err);
-        setErrorMessage('Falha ao sincronizar dados base da nuvem.');
+        console.error('Erro ao carregar dados para orcamentos', err);
+        setErrorMessage('Falha ao sincronizar clientes, produtos ou historico.');
       } finally {
         setLoadingData(false);
       }
@@ -65,25 +95,39 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     loadInitialData();
   }, []);
 
+  const productsByCategory = useMemo(
+    () => products.filter((product) => product.categoria === category),
+    [products, category],
+  );
+
+  function handleCategoryChange(nextCategory: 'LSF' | 'MM' | 'CHALE') {
+    setCategory(nextCategory);
+    setSelectedProductId('');
+    setItems([]);
+  }
+
   function handleAddItem() {
-    if (!selectedProductId) return;
-    
-    const product = products.find(p => p.id === selectedProductId);
+    if (!selectedProductId || quantityInput <= 0) return;
+
+    const product = products.find((p) => p.id === selectedProductId);
     if (!product) return;
 
-    const existingIndex = items.findIndex(item => item.product_id === product.id);
+    const existingIndex = items.findIndex((item) => item.product_id === product.id);
     if (existingIndex > -1) {
       const updatedItems = [...items];
       updatedItems[existingIndex].quantity += Number(quantityInput);
       setItems(updatedItems);
     } else {
-      setItems([...items, {
-        product_id: product.id,
-        sku: product.sku,
-        name: product.name,
-        quantity: Number(quantityInput),
-        price_unit: product.price
-      }]);
+      setItems([
+        ...items,
+        {
+          product_id: product.id,
+          codigo: product.codigo,
+          descricao: product.descricao,
+          quantity: Number(quantityInput),
+          price_unit: Number(product.preco),
+        },
+      ]);
     }
 
     setSelectedProductId('');
@@ -94,23 +138,28 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setItems(items.filter((_, i) => i !== index));
   }
 
-  const totalBudget = items.reduce((acc, item) => acc + (item.quantity * item.price_unit), 0);
+  const subtotal = items.reduce((acc, item) => acc + item.quantity * item.price_unit, 0);
+  const totalBudget = Math.max(subtotal - Number(discount || 0) + Number(shippingValue || 0), 0);
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
   };
 
-  async function handleEmitirOrçamento(e: React.FormEvent) {
+  async function handleEmitirOrcamento(e: React.FormEvent) {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
 
     if (!selectedClientId) {
-      setErrorMessage('Por favor, selecione um cliente corporativo válido.');
+      setErrorMessage('Selecione um cliente corporativo valido.');
       return;
     }
     if (items.length === 0) {
-      setErrorMessage('O orçamento precisa conter pelo menos 1 insumo ou estrutura.');
+      setErrorMessage('O orcamento precisa conter pelo menos 1 item.');
+      return;
+    }
+    if (Number(discount || 0) > subtotal + Number(shippingValue || 0)) {
+      setErrorMessage('O desconto informado deixa o total negativo.');
       return;
     }
 
@@ -118,54 +167,60 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const payload = {
       client_id: selectedClientId,
-      items: items.map(item => ({
+      items: items.map((item) => ({
         product_id: item.product_id,
-        quantity: item.quantity
+        quantity: item.quantity,
       })),
-      payment_condition: paymentCondition, // Injetado no payload
-      shipping_type: shippingType,           // Injetado no payload
-      observations: observations || 'Proposta comercial padrão válida por 10 dias.'
+      payment_condition: paymentCondition,
+      shipping_type: shippingType,
+      desconto: Number(discount || 0),
+      valor_frete: Number(shippingValue || 0),
+      observations: observations || 'Proposta comercial padrao valida por 10 dias.',
     };
 
     try {
       const response = await api.post('/quotes/generate', payload, { responseType: 'blob' });
-      
+
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      
-      const clientName = clients.find(c => c.id === selectedClientId)?.razao_social.toLowerCase().replace(/[^a-z0-9]/g, '_');
+
+      const clientName = clients.find((c) => c.id === selectedClientId)?.razao_social.toLowerCase().replace(/[^a-z0-9]/g, '_');
       link.setAttribute('download', `orcamento_aulevi_${clientName || 'nexus'}.pdf`);
-      
+
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
 
-      setSuccessMessage('Orçamento emitido e PDF gerado com sucesso!');
+      const quotesRes = await api.get('/quotes');
+      setQuotes(quotesRes.data);
+      setSuccessMessage('Orcamento salvo como pendente e PDF gerado com sucesso.');
       setItems([]);
       setObservations('');
+      setDiscount(0);
+      setShippingValue(0);
       setSelectedClientId('');
     } catch (err) {
       console.error(err);
-      setErrorMessage('Erro técnico ao processar e compilar o PDF no motor do backend.');
+      setErrorMessage('Erro tecnico ao salvar o orcamento e compilar o PDF.');
     } finally {
       setGeneratingPdf(false);
     }
   }
 
   if (loadingData) {
-    return <div className="text-xs font-mono uppercase text-center py-12">Carregando entidades e catálogos...</div>;
+    return <div className="text-xs font-mono uppercase text-center py-12">Carregando entidades e catalogos...</div>;
   }
 
   return (
     <div className="space-y-8">
-      {/* Sub-Header */}
       <div className="flex justify-between items-center border-b-2 border-black pb-4">
         <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
           <ArrowLeft size={16} /> Voltar ao Menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Painel de Engenharia de Orçamentos</h2>
+        <h2 className="text-2xl font-black uppercase tracking-tight">Painel de Orcamentos</h2>
       </div>
 
       {successMessage && (
@@ -180,77 +235,85 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* LADO ESQUERDO: CONFIGURAÇÃO & INCLUSÃO */}
+      <form onSubmit={handleEmitirOrcamento} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
           <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">1. Entidade Cliente</h3>
+            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">1. Categoria</h3>
+            <div className="grid grid-cols-3 gap-2">
+              {(['LSF', 'MM', 'CHALE'] as const).map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => handleCategoryChange(option)}
+                  className={`border-2 border-black p-2 text-xs font-black uppercase ${category === option ? 'bg-black text-white' : 'bg-white text-black'}`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">2. Cliente</h3>
+            <select
+              value={selectedClientId}
+              onChange={(e) => setSelectedClientId(e.target.value)}
+              className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
+            >
+              <option value="">-- Selecione o Cliente --</option>
+              {clients.map((client) => (
+                <option key={client.id} value={client.id}>{client.razao_social} ({client.cnpj})</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">3. Regras Comerciais</h3>
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Selecionar Cliente</label>
+              <label className="block text-xs font-bold uppercase mb-1">Condicao de Pagamento</label>
               <select
-                value={selectedClientId}
-                onChange={(e) => setSelectedClientId(e.target.value)}
-                className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
+                value={paymentCondition}
+                onChange={(e) => setPaymentCondition(e.target.value)}
+                className="w-full border-2 border-black p-2 text-xs bg-white font-black uppercase focus:outline-none"
               >
-                <option value="">-- Selecione o Cliente --</option>
-                {clients.map(c => (
-                  <option key={c.id} value={c.id}>{c.razao_social} ({c.cnpj})</option>
+                {paymentOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase mb-1">Tipo de Frete</label>
+              <select
+                value={shippingType}
+                onChange={(e) => setShippingType(e.target.value)}
+                className="w-full border-2 border-black p-2 text-xs bg-white font-black uppercase focus:outline-none"
+              >
+                {shippingOptions.map((option) => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
                 ))}
               </select>
             </div>
           </div>
 
-          {/* NOVO BLOCO BRUTALISTA: REGRAS COMERCIAIS */}
           <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">2. Regras de Fechamento</h3>
-            
+            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">4. Itens</h3>
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Condição de Pagamento</label>
-              <select
-                value={paymentCondition}
-                onChange={(e) => setPaymentCondition(e.target.value)}
-                className="w-full border-2 border-black p-2 text-sm bg-white font-black uppercase focus:outline-none text-xs tracking-tight"
-              >
-                <option value="50_ENTRADA_50_ENTREGA">50% Entrada + 50% na Entrega das Estruturas</option>
-                <option value="100_ANTECIPADO">100% Antecipado (Garante 5% de Desconto)</option>
-                <option value="30_60_90_DIAS">Faturamento Direto (30 / 60 / 90 dias)</option>
-                <option value="FINANCIAMENTO_BANCARIO">Via Financiamento Bancário / Construcard</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">Tipo de Frete / Logística</label>
-              <select
-                value={shippingType}
-                onChange={(e) => setShippingType(e.target.value)}
-                className="w-full border-2 border-black p-2 text-sm bg-white font-black uppercase focus:outline-none text-xs tracking-tight"
-              >
-                <option value="FOB_RETIRADA">FOB - Retirada por conta do Cliente (Fábrica Aulevi)</option>
-                <option value="CIF_ENTREGA">CIF - Entrega Inclusa no Canteiro de Obras</option>
-                <option value="A_COMBINAR">A Combinar / Logística Dedicada</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">3. Indexação de Itens</h3>
-            
-            <div>
-              <label className="block text-xs font-bold uppercase mb-1">Insumo / Estrutura</label>
+              <label className="block text-xs font-bold uppercase mb-1">Produto</label>
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
                 className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
               >
                 <option value="">-- Selecione o Produto --</option>
-                {products.map(p => (
-                  <option key={p.id} value={p.id}>[{p.sku}] {p.name} - {formatCurrency(p.price)}/{p.unit}</option>
+                {productsByCategory.map((product) => (
+                  <option key={product.id} value={product.id}>
+                    [{product.codigo}] {product.descricao} - {formatCurrency(Number(product.preco))}/{product.unidade_medida}
+                  </option>
                 ))}
               </select>
             </div>
-
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Quantidade Demanda</label>
+              <label className="block text-xs font-bold uppercase mb-1">Quantidade</label>
               <input
                 type="number"
                 min="1"
@@ -259,53 +322,50 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono"
               />
             </div>
-
             <button
               type="button"
               onClick={handleAddItem}
               className="w-full border-2 border-black bg-gray-200 p-2 text-xs font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2"
             >
-              <Plus size={16} /> Inserir na Planilha
+              <Plus size={16} /> Inserir Item
             </button>
           </div>
         </div>
 
-        {/* LADO DIREITO: RESUMO DA PLANILHA & EMISSÃO */}
         <div className="lg:col-span-2 space-y-6">
           <div className="border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between min-h-[400px]">
             <div>
               <h3 className="text-md font-black uppercase tracking-widest border-b-2 border-black pb-3 mb-4 flex items-center justify-between">
-                <span>Composição Analítica do Orçamento</span>
+                <span>Composicao do Orcamento</span>
                 <span className="font-mono text-xs text-gray-500">ITENS: {items.length}</span>
               </h3>
-
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b-2 border-black text-xs font-black uppercase text-gray-600">
-                      <th className="pb-2">SKU</th>
-                      <th className="pb-2">Descrição</th>
+                      <th className="pb-2">Codigo</th>
+                      <th className="pb-2">Descricao</th>
                       <th className="pb-2 text-center">Qtd</th>
-                      <th className="pb-2 text-right">Unitário</th>
+                      <th className="pb-2 text-right">Unitario</th>
                       <th className="pb-2 text-right">Subtotal</th>
-                      <th className="pb-2 text-center">Ações</th>
+                      <th className="pb-2 text-center">Acoes</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y border-b text-sm font-medium">
                     {items.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center font-mono text-xs text-gray-400 uppercase">Nenhum insumo orçado até o momento.</td>
+                        <td colSpan={6} className="py-8 text-center font-mono text-xs text-gray-400 uppercase">Nenhum item orcado ate o momento.</td>
                       </tr>
                     ) : (
                       items.map((item, index) => (
-                        <tr key={index} className="hover:bg-gray-50">
-                          <td className="py-2 font-mono text-xs">{item.sku}</td>
-                          <td className="py-2 uppercase font-bold text-xs">{item.name}</td>
+                        <tr key={item.product_id} className="hover:bg-gray-50">
+                          <td className="py-2 font-mono text-xs">{item.codigo}</td>
+                          <td className="py-2 uppercase font-bold text-xs">{item.descricao}</td>
                           <td className="py-2 text-center font-mono">{item.quantity}</td>
                           <td className="py-2 text-right font-mono text-xs">{formatCurrency(item.price_unit)}</td>
                           <td className="py-2 text-right font-mono text-xs font-bold">{formatCurrency(item.quantity * item.price_unit)}</td>
                           <td className="py-2 text-center">
-                            <button onClick={() => handleRemoveItem(index)} className="text-black hover:text-red-600 transition-colors">
+                            <button type="button" onClick={() => handleRemoveItem(index)} className="text-black hover:text-red-600 transition-colors">
                               <Trash2 size={16} />
                             </button>
                           </td>
@@ -317,46 +377,69 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* Rodapé Interno com Totalizador e Notas */}
             <div className="border-t-2 border-black pt-4 mt-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-black uppercase mb-1">Desconto</label>
+                  <input type="number" min="0" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono" />
+                </div>
+                <div>
+                  <label className="block text-xs font-black uppercase mb-1">Valor do Frete</label>
+                  <input type="number" min="0" value={shippingValue} onChange={(e) => setShippingValue(Number(e.target.value))} className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono" />
+                </div>
+              </div>
               <div>
-                <label className="block text-xs font-black uppercase mb-1">Notas Gerais / Condições Comerciais</label>
+                <label className="block text-xs font-black uppercase mb-1">Observacoes Comerciais</label>
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
-                  placeholder="Ex: Condições de pagamento: 50% de entrada + saldo na entrega dos perfis LSF."
+                  placeholder="Ex: Proposta valida por 10 dias."
                   className="w-full border-2 border-black p-2 text-xs focus:outline-none h-16 resize-none"
                 />
               </div>
-
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-100 border-2 border-black p-4 gap-4">
-                <div>
-                  <div className="text-xs font-black uppercase tracking-wider text-gray-600">Valor Total Estimado</div>
+                <div className="space-y-1">
+                  <div className="text-xs font-black uppercase tracking-wider text-gray-600">Subtotal: {formatCurrency(subtotal)}</div>
+                  <div className="text-xs font-black uppercase tracking-wider text-gray-600">Desconto: {formatCurrency(Number(discount || 0))}</div>
+                  <div className="text-xs font-black uppercase tracking-wider text-gray-600">Frete: {formatCurrency(Number(shippingValue || 0))}</div>
                   <div className="text-3xl font-black font-mono tracking-tight text-black">{formatCurrency(totalBudget)}</div>
                 </div>
-                
                 <button
-                  type="button"
-                  onClick={handleEmitirOrçamento}
+                  type="submit"
                   disabled={generatingPdf || items.length === 0}
                   className="w-full md:w-auto border-2 border-black bg-black text-white px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)]"
                 >
                   {generatingPdf ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Compilando PDF...
+                      <Loader2 size={16} className="animate-spin" /> Gerando PDF...
                     </>
                   ) : (
                     <>
-                      <Download size={16} /> Compilar & Emitir Proposta PDF
+                      <Download size={16} /> Salvar & Emitir PDF
                     </>
                   )}
                 </button>
               </div>
             </div>
+          </div>
 
+          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2 mb-4">Historico Recente</h3>
+            <div className="divide-y divide-gray-200">
+              {quotes.slice(0, 5).map((quote) => (
+                <div key={quote.id} className="py-3 flex items-center justify-between gap-4 text-xs font-mono">
+                  <span className="font-black">{quote.numero_orcamento}</span>
+                  <span className="uppercase">{quote.status}</span>
+                  <span>{formatCurrency(Number(quote.total))}</span>
+                </div>
+              ))}
+              {quotes.length === 0 && (
+                <div className="py-4 text-center text-xs font-mono uppercase text-gray-500">Nenhum orcamento emitido.</div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

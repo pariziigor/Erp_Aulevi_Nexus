@@ -1,9 +1,10 @@
 # backend/src/models/product.py
 import uuid
-from sqlalchemy import Column, String, Boolean, Numeric, Enum
+from sqlalchemy import Column, String, Boolean, Numeric, Enum, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from src.core.database import Base
 import enum
+from datetime import datetime
 
 class CategoryEnum(str, enum.Enum):
     LSF = "LSF"
@@ -23,3 +24,5 @@ class Product(Base):
     preco = Column(Numeric(10, 2), nullable=False)
     
     is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

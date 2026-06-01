@@ -18,7 +18,7 @@ class CNPJService:
         
         async with httpx.AsyncClient() as client:
             try:
-                response = client.get(url, timeout=10.0)
+                response = await client.get(url, timeout=10.0)
                 
                 if response.status_code == 404:
                     raise HTTPException(
@@ -38,6 +38,7 @@ class CNPJService:
                     "cnpj": cnpj_limpo,
                     "razao_social": dados.get("razao_social"),
                     "nome_fantasia": dados.get("nome_fantasia") or dados.get("razao_social"),
+                    "situacao_cadastral": dados.get("descricao_situacao_cadastral"),
                     "cnae": dados.get("cnae_fiscal_descricao"),
                     "cep": dados.get("cep"),
                     "endereco": dados.get("logradouro"),

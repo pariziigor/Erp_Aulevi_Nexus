@@ -147,7 +147,16 @@
     </table>
 
     <div class="total-container">
-        VALOR TOTAL DO INVESTIMENTO: R$ {{ "%.2f"|format(quote.total_amount) }}
+        <div>Subtotal: R$ {{ "%.2f"|format(quote.subtotal) }}</div>
+        <div>Desconto: R$ {{ "%.2f"|format(quote.desconto) }}</div>
+        <div>Frete: R$ {{ "%.2f"|format(quote.valor_frete) }}</div>
+        <div style="font-size: 18px; margin-top: 8px;">VALOR TOTAL DO INVESTIMENTO: R$ {{ "%.2f"|format(quote.total) }}</div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <strong>Condição de pagamento:</strong> {{ quote.payment_condition or "A combinar" }}<br>
+        <strong>Tipo de frete:</strong> {{ quote.shipping_type or "A combinar" }}<br>
+        <strong>Observações:</strong> {{ quote.observations or "Proposta comercial válida por 10 dias." }}
     </div>
 
     <div class="footer">

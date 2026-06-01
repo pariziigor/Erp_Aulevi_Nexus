@@ -1,6 +1,6 @@
 # backend/src/models/quote.py
 import uuid
-from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime
+from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from src.core.database import Base
@@ -14,6 +14,7 @@ class QuoteStatus(str, enum.Enum):
     CANCELADO = "CANCELADO"
     EXPIRADO = "EXPIRADO"
     CONVERTIDO_EM_PEDIDO = "CONVERTIDO_EM_PEDIDO"
+    REVISADO = "REVISADO"
 
 class Quote(Base):
     __tablename__ = "quotes"
@@ -31,14 +32,24 @@ class Quote(Base):
     desconto = Column(Numeric(10, 2), default=0)
     valor_frete = Column(Numeric(10, 2), default=0)
     total = Column(Numeric(10, 2), default=0)
+    payment_condition = Column(String, nullable=True)
+    shipping_type = Column(String, nullable=True)
+    observations = Column(Text, nullable=True)
     
     # Integrações
     pdf_url = Column(String, nullable=True)
     zapi_message_id = Column(String, nullable=True)
+    sent_at = Column(DateTime, nullable=True)
+    client_response = Column(String, nullable=True)
+    responded_at = Column(DateTime, nullable=True)
+    send_error = Column(Text, nullable=True)
     
     created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relacionamentos
+    client = relationship("Client")
+    seller = relationship("User")
     items = relationship("QuoteItem", back_populates="quote", cascade="all, delete-orphan")
 
 class QuoteItem(Base):
@@ -53,3 +64,4 @@ class QuoteItem(Base):
     total_item = Column(Numeric(10, 2), nullable=False)
     
     quote = relationship("Quote", back_populates="items")
+    product = relationship("Product")

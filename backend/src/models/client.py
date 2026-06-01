@@ -1,8 +1,9 @@
 # backend/src/models/client.py
 import uuid
-from sqlalchemy import Column, String, Boolean
+from sqlalchemy import Column, String, Boolean, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from src.core.database import Base
+from datetime import datetime
 
 class Client(Base):
     __tablename__ = "clients"
@@ -11,6 +12,7 @@ class Client(Base):
     cnpj = Column(String, unique=True, index=True, nullable=False)
     razao_social = Column(String, nullable=False)
     nome_fantasia = Column(String)
+    situacao_cadastral = Column(String)
     cnae = Column(String)
     
     cep = Column(String)
@@ -23,5 +25,8 @@ class Client(Base):
     contato_nome = Column(String, nullable=False)
     contato_email = Column(String, nullable=False)
     contato_whatsapp = Column(String, nullable=False)
+    contato_telefone = Column(String)
     
     is_active = Column(Boolean, default=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

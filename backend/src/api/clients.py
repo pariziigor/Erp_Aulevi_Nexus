@@ -31,6 +31,7 @@ def cadastrar_cliente(payload: ClientCreate, db: Session = Depends(get_db)):
         cnpj=cnpj_limpo,
         razao_social=payload.razao_social,
         nome_fantasia=payload.nome_fantasia,
+        situacao_cadastral=payload.situacao_cadastral,
         cnae=payload.cnae,
         cep=payload.cep,
         endereco=payload.endereco,
@@ -41,6 +42,7 @@ def cadastrar_cliente(payload: ClientCreate, db: Session = Depends(get_db)):
         contato_nome=payload.contato_nome,
         contato_email=payload.contato_email,
         contato_whatsapp=payload.contato_whatsapp,
+        contato_telefone=payload.contato_telefone,
         is_active=True # Booleano nativo estrito
     )
     

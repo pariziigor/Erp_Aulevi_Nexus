@@ -26,14 +26,6 @@ if config.config_file_name is not None:
 # 4. Aponta o metadata
 target_metadata = Base.metadata
 
-# --- RAIO-X DO ALEMBIC ---
-print(f"\n---> RAIO-X DO ALEMBIC: {target_metadata.tables.keys()}\n")
-# --- RAIO-X DO ALEMBIC ---
-print(f"\n---> RAIO-X DO ALEMBIC: {target_metadata.tables.keys()}")
-print(f"---> CONECTANDO EM: {settings.DATABASE_URL.split('@')[-1]}\n")
-# -------------------------
-# -------------------------
-
 def run_migrations_offline() -> None:
     """Executa migrações no modo offline."""
     url = settings.DATABASE_URL
@@ -66,3 +58,9 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    run_migrations_online()
