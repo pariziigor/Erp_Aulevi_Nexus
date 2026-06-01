@@ -5,11 +5,12 @@ import { Login } from './pages/Login';
 import { Clients } from './pages/Clients';
 import { Products } from './pages/Products';
 import { Quotes } from './pages/Quotes';
+import { Dashboard } from './pages/Dashboard';
 import { LogOut, Users, Package, FileText, LayoutGrid } from 'lucide-react';
 
 function DashboardPrincipal() {
   const { logout, user } = useAuth();
-  const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes'>('menu');
+  const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes' | 'dashboard'>('menu');
 
   // Redirecionamento condicional das telas
   if (activePage === 'crm') {
@@ -22,6 +23,10 @@ function DashboardPrincipal() {
 
   if (activePage === 'quotes') {
     return <div className="min-h-screen p-8 md:p-16"><Quotes onBack={() => setActivePage('menu')} /></div>;
+  }
+
+  if (activePage === 'dashboard') {
+    return <div className="min-h-screen p-8 md:p-16"><Dashboard onBack={() => setActivePage('menu')} /></div>;
   }
 
   return (
@@ -62,7 +67,10 @@ function DashboardPrincipal() {
           <h2 className="text-xl font-bold uppercase tracking-tight">Orçamentos</h2>
         </div>
         
-        <div className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48">
+        <div 
+          onClick={() => setActivePage('dashboard')}
+          className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48"
+        >
           <LayoutGrid size={32} strokeWidth={2.5} />
           <h2 className="text-xl font-bold uppercase tracking-tight">Dashboard</h2>
         </div>
