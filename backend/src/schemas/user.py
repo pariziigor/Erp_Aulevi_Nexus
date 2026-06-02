@@ -1,5 +1,6 @@
 # backend/src/schemas/user.py
 from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 from uuid import UUID
 from src.models.user import RoleEnum
 
@@ -27,3 +28,8 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+
+
+class UserUpdate(BaseModel):
+    role: Optional[RoleEnum] = None
+    is_active: Optional[bool] = None

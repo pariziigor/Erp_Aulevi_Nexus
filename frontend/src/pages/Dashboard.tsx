@@ -28,7 +28,7 @@ interface AuditLog {
   action: string;
   entity_type: string;
   entity_label?: string;
-  changes?: Record<string, { old?: string | null; new?: string | null }>;
+  changes?: Record<string, { old?: string | boolean | null; new?: string | boolean | null }>;
   created_at: string;
 }
 
@@ -70,6 +70,8 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const describeAction = (action: string) => {
     const labels: Record<string, string> = {
       client_contact_updated: 'Contato do cliente atualizado',
+      user_created: 'Usuario criado',
+      user_permissions_updated: 'Permissao de usuario atualizada',
     };
     return labels[action] || action.replaceAll('_', ' ');
   };
@@ -80,6 +82,8 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       contato_email: 'e-mail',
       contato_whatsapp: 'WhatsApp',
       contato_telefone: 'telefone',
+      role: 'permissao',
+      is_active: 'status',
     };
     return Object.entries(changes)
       .map(([field, values]) => `${labels[field] || field}: ${values.old || '-'} -> ${values.new || '-'}`)

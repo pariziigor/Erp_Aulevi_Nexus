@@ -62,6 +62,8 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [category, setCategory] = useState<'LSF' | 'MM' | 'CHALE'>('LSF');
   const [selectedClientId, setSelectedClientId] = useState('');
   const [selectedProductId, setSelectedProductId] = useState('');
+  const [clientSearch, setClientSearch] = useState('');
+  const [productSearch, setProductSearch] = useState('');
   const [quantityInput, setQuantityInput] = useState<number>(1);
   const [items, setItems] = useState<QuoteItem[]>([]);
   const [observations, setObservations] = useState('');
@@ -100,9 +102,47 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     [products, category],
   );
 
+  const filteredClients = useMemo(() => {
+    const term = clientSearch.trim().toLowerCase().replace(/\D/g, '');
+    const rawTerm = clientSearch.trim().toLowerCase();
+    if (!rawTerm) return clients;
+
+    return clients.filter((client) => {
+      const cnpjDigits = client.cnpj.replace(/\D/g, '');
+      return client.razao_social.toLowerCase().includes(rawTerm) || cnpjDigits.includes(term);
+    });
+  }, [clients, clientSearch]);
+
+  const filteredProducts = useMemo(() => {
+    const term = productSearch.trim().toLowerCase();
+    if (!term) return productsByCategory;
+
+    return productsByCategory.filter((product) => (
+      product.codigo.toLowerCase().includes(term) ||
+      product.descricao.toLowerCase().includes(term)
+    ));
+  }, [productsByCategory, productSearch]);
+
+  const clientOptions = useMemo(() => {
+    if (!selectedClientId || filteredClients.some((client) => client.id === selectedClientId)) {
+      return filteredClients;
+    }
+    const selectedClient = clients.find((client) => client.id === selectedClientId);
+    return selectedClient ? [selectedClient, ...filteredClients] : filteredClients;
+  }, [clients, filteredClients, selectedClientId]);
+
+  const productOptions = useMemo(() => {
+    if (!selectedProductId || filteredProducts.some((product) => product.id === selectedProductId)) {
+      return filteredProducts;
+    }
+    const selectedProduct = productsByCategory.find((product) => product.id === selectedProductId);
+    return selectedProduct ? [selectedProduct, ...filteredProducts] : filteredProducts;
+  }, [filteredProducts, productsByCategory, selectedProductId]);
+
   function handleCategoryChange(nextCategory: 'LSF' | 'MM' | 'CHALE') {
     setCategory(nextCategory);
     setSelectedProductId('');
+    setProductSearch('');
     setItems([]);
   }
 
@@ -131,6 +171,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     }
 
     setSelectedProductId('');
+    setProductSearch('');
     setQuantityInput(1);
   }
 
@@ -255,13 +296,26 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
           <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
             <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">2. Cliente</h3>
+            <div>
+              <label className="block text-xs font-bold uppercase mb-1">Buscar por Razao Social ou CNPJ</label>
+              <input
+                type="text"
+                value={clientSearch}
+                onChange={(e) => setClientSearch(e.target.value)}
+                placeholder="Digite parte do nome ou CNPJ..."
+                className="w-full border-2 border-black p-2 text-sm focus:outline-none"
+              />
+              <div className="mt-1 text-[10px] font-mono uppercase text-gray-500">
+                {filteredClients.length} de {clients.length} clientes encontrados
+              </div>
+            </div>
             <select
               value={selectedClientId}
               onChange={(e) => setSelectedClientId(e.target.value)}
               className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
             >
               <option value="">-- Selecione o Cliente --</option>
-              {clients.map((client) => (
+              {clientOptions.map((client) => (
                 <option key={client.id} value={client.id}>{client.razao_social} ({client.cnpj})</option>
               ))}
             </select>
@@ -298,6 +352,17 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
             <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">4. Itens</h3>
             <div>
+              <label className="block text-xs font-bold uppercase mb-1">Buscar por Codigo ou Descricao</label>
+              <input
+                type="text"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Digite codigo ou descricao do item..."
+                className="w-full border-2 border-black p-2 text-sm focus:outline-none mb-3"
+              />
+              <div className="mb-2 text-[10px] font-mono uppercase text-gray-500">
+                {filteredProducts.length} de {productsByCategory.length} itens da categoria {category}
+              </div>
               <label className="block text-xs font-bold uppercase mb-1">Produto</label>
               <select
                 value={selectedProductId}
@@ -305,7 +370,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
               >
                 <option value="">-- Selecione o Produto --</option>
-                {productsByCategory.map((product) => (
+                {productOptions.map((product) => (
                   <option key={product.id} value={product.id}>
                     [{product.codigo}] {product.descricao} - {formatCurrency(Number(product.preco))}/{product.unidade_medida}
                   </option>

@@ -6,9 +6,21 @@ from src.core.config import settings
 
 # Inicializa o cliente SDK do Supabase
 supabase: Client = create_client(settings.SUPABASE_URL, settings.SUPABASE_KEY)
+supabase_admin: Client | None = None
+if settings.SUPABASE_SERVICE_ROLE_KEY:
+    supabase_admin = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
 security = HTTPBearer()
 
 class AuthService:
+    @staticmethod
+    def obter_cliente_admin() -> Client:
+        if not supabase_admin:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="SUPABASE_SERVICE_ROLE_KEY nao configurada. A criacao de usuarios pelo painel ADM exige a chave service_role do Supabase.",
+            )
+        return supabase_admin
+
     @staticmethod
     def autenticar_usuario(email: str, password: str) -> dict:
         """Autentica o usuário direto no Supabase Auth."""
