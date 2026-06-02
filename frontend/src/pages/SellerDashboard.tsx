@@ -138,16 +138,16 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
   }
 
   if (loading) {
-    return <div className="text-xs font-mono uppercase text-center py-12">Carregando seu painel comercial...</div>;
+    return <div className="nexus-panel py-12 text-center text-xs font-semibold uppercase text-slate-500">Carregando seu painel comercial...</div>;
   }
 
   if (error && !payload) {
     return (
       <div className="space-y-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <div className="border-2 border-black bg-red-50 p-4 text-xs font-mono uppercase">{error}</div>
+        <div className="nexus-alert-error">{error}</div>
       </div>
     );
   }
@@ -156,41 +156,41 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 border-b-2 border-black pb-4 md:flex-row md:items-center md:justify-between">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="nexus-page-header">
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Meu Painel de Orcamentos</h2>
-        <div className="text-xs font-mono uppercase bg-black text-white px-3 py-1">
+        <h2 className="nexus-title">Meu Painel de Orcamentos</h2>
+        <div className="nexus-badge">
           {payload?.seller.name}
         </div>
       </div>
 
       {error && (
-        <div className="border-2 border-black bg-red-50 p-4 text-xs font-mono uppercase">{error}</div>
+        <div className="nexus-alert-error">{error}</div>
       )}
 
       {summary && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          <div className="border-4 border-black bg-white p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-32 flex flex-col justify-between">
+          <div className="nexus-surface flex h-32 flex-col justify-between p-5">
             <div className="flex justify-between text-xs font-black uppercase text-gray-500">
               <span>Total Emitido</span>
               <FileText size={18} />
             </div>
             <div className="text-3xl font-black font-mono">{summary.total_orcamentos}</div>
           </div>
-          <div className="border-4 border-black bg-white p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-32 flex flex-col justify-between">
+          <div className="nexus-surface flex h-32 flex-col justify-between p-5">
             <div className="flex justify-between text-xs font-black uppercase text-gray-500">
               <span>Pipeline</span>
               <TrendingUp size={18} />
             </div>
             <div className="text-2xl font-black font-mono">{formatCurrency(summary.valor_total_orcado)}</div>
           </div>
-          <div className="border-4 border-black bg-white p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-32 flex flex-col justify-between">
+          <div className="nexus-surface flex h-32 flex-col justify-between p-5">
             <div className="text-xs font-black uppercase text-gray-500">Aprovado</div>
             <div className="text-2xl font-black font-mono">{formatCurrency(summary.valor_total_aprovado)}</div>
           </div>
-          <div className="border-4 border-black bg-white p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] h-32 flex flex-col justify-between">
+          <div className="nexus-surface flex h-32 flex-col justify-between p-5">
             <div className="text-xs font-black uppercase text-gray-500">Conversao</div>
             <div className="text-3xl font-black font-mono">{summary.taxa_conversao}%</div>
           </div>
@@ -199,27 +199,27 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
 
       {summary && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs font-mono uppercase">
-          <div className="border-2 border-black bg-white p-4">Pendentes: <strong>{summary.orcamentos_pendentes}</strong></div>
-          <div className="border-2 border-black bg-white p-4">Aprovados: <strong>{summary.orcamentos_aprovados}</strong></div>
-          <div className="border-2 border-black bg-white p-4">Cancelados: <strong>{summary.orcamentos_cancelados}</strong></div>
-          <div className="border-2 border-black bg-white p-4">Ticket Medio: <strong>{formatCurrency(summary.ticket_medio)}</strong></div>
+          <div className="nexus-surface p-4">Pendentes: <strong>{summary.orcamentos_pendentes}</strong></div>
+          <div className="nexus-surface p-4">Aprovados: <strong>{summary.orcamentos_aprovados}</strong></div>
+          <div className="nexus-surface p-4">Cancelados: <strong>{summary.orcamentos_cancelados}</strong></div>
+          <div className="nexus-surface p-4">Ticket Medio: <strong>{formatCurrency(summary.ticket_medio)}</strong></div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <div className="nexus-filter-bar md:grid-cols-4">
         <div className="relative md:col-span-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Buscar por numero, cliente, CNPJ ou cidade..."
-            className="w-full border-2 border-black p-2 pl-10 text-sm focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 pl-10 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value)}
-          className="w-full border-2 border-black p-2 text-sm bg-white font-black uppercase focus:outline-none"
+          className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-bold uppercase outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
         >
           <option value="ALL">Todos os Status</option>
           {statusOptions.map((option) => (
@@ -230,7 +230,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {filteredQuotes.length === 0 ? (
-          <div className="md:col-span-2 xl:col-span-3 border-2 border-black bg-white p-8 text-center text-xs font-mono uppercase text-gray-500">
+          <div className="nexus-panel md:col-span-2 xl:col-span-3 p-8 text-center text-xs font-semibold uppercase text-slate-500">
             Nenhum orcamento encontrado.
           </div>
         ) : (
@@ -239,7 +239,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
               key={quote.id}
               type="button"
               onClick={() => setSelectedQuote(quote)}
-              className="text-left border-2 border-black bg-white p-5 hover:bg-gray-50 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] min-h-56 flex flex-col justify-between"
+              className="nexus-surface flex min-h-56 flex-col justify-between p-5 text-left transition-all hover:-translate-y-1 hover:border-orange-300/60 hover:bg-white/90 hover:shadow-2xl hover:shadow-orange-500/10"
             >
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-3">
@@ -264,8 +264,8 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
 
       {selectedQuote && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-5xl max-h-[90vh] overflow-y-auto border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-6">
-            <div className="flex flex-col gap-4 border-b-2 border-black pb-4 md:flex-row md:items-start md:justify-between">
+          <div className="nexus-panel max-h-[90vh] w-full max-w-5xl space-y-6 overflow-y-auto p-6">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-4 md:flex-row md:items-start md:justify-between">
               <div>
                 <h3 className="text-2xl font-black font-mono">{selectedQuote.numero_orcamento}</h3>
                 <p className="text-xs font-mono uppercase text-gray-500">{selectedQuote.client_name} - {selectedQuote.client_city}/{selectedQuote.client_uf}</p>
@@ -275,28 +275,28 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
                   type="button"
                   onClick={() => handleDownloadPdf(selectedQuote)}
                   disabled={downloadingQuoteId === selectedQuote.id}
-                  className="border-2 border-black bg-black text-white px-4 py-2 text-xs font-black uppercase hover:bg-white hover:text-black transition-all flex items-center gap-2 disabled:opacity-50"
+                  className="nexus-primary-button"
                 >
                   {downloadingQuoteId === selectedQuote.id ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                   PDF
                 </button>
-                <button type="button" onClick={() => setSelectedQuote(null)} className="border-2 border-black px-4 py-2 text-xs font-black uppercase hover:bg-black hover:text-white">
+                <button type="button" onClick={() => setSelectedQuote(null)} className="nexus-secondary-button">
                   Fechar
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono uppercase">
-              <div className="border-2 border-black p-3">Status<br /><strong>{statusLabel(selectedQuote.status)}</strong></div>
-              <div className="border-2 border-black p-3">Pagamento<br /><strong>{selectedQuote.payment_condition || '-'}</strong></div>
-              <div className="border-2 border-black p-3">Frete<br /><strong>{selectedQuote.shipping_type || '-'}</strong></div>
-              <div className="border-2 border-black p-3">Criado<br /><strong>{formatDate(selectedQuote.created_at)}</strong></div>
+            <div className="grid grid-cols-1 gap-4 text-xs uppercase md:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Status<br /><strong>{statusLabel(selectedQuote.status)}</strong></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Pagamento<br /><strong>{selectedQuote.payment_condition || '-'}</strong></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Frete<br /><strong>{selectedQuote.shipping_type || '-'}</strong></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Criado<br /><strong>{formatDate(selectedQuote.created_at)}</strong></div>
             </div>
 
-            <div className="overflow-x-auto border-2 border-black">
-              <table className="w-full text-left border-collapse">
+            <div className="nexus-table-wrap">
+              <table className="w-full text-left">
                 <thead>
-                  <tr className="bg-black text-white text-xs font-black uppercase">
+                  <tr className="nexus-table-head">
                     <th className="p-3">Codigo</th>
                     <th className="p-3">Descricao</th>
                     <th className="p-3 text-center">Qtd</th>
@@ -304,7 +304,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
                     <th className="p-3 text-right">Total</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y-2 divide-black text-sm">
+                <tbody className="divide-y divide-slate-200 text-sm">
                   {selectedQuote.items.map((item) => (
                     <tr key={item.id}>
                       <td className="p-3 font-mono text-xs">{item.codigo}</td>
@@ -318,14 +318,14 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
               </table>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono uppercase">
-              <div className="border-2 border-black p-3">Subtotal<br /><strong>{formatCurrency(selectedQuote.subtotal)}</strong></div>
-              <div className="border-2 border-black p-3">Desconto<br /><strong>{formatCurrency(selectedQuote.desconto)}</strong></div>
-              <div className="border-2 border-black p-3">Frete<br /><strong>{formatCurrency(selectedQuote.valor_frete)}</strong></div>
-              <div className="border-2 border-black p-3 bg-gray-100">Total<br /><strong>{formatCurrency(selectedQuote.total)}</strong></div>
+            <div className="grid grid-cols-1 gap-4 text-xs uppercase md:grid-cols-4">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Subtotal<br /><strong>{formatCurrency(selectedQuote.subtotal)}</strong></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Desconto<br /><strong>{formatCurrency(selectedQuote.desconto)}</strong></div>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3">Frete<br /><strong>{formatCurrency(selectedQuote.valor_frete)}</strong></div>
+              <div className="rounded-2xl border border-orange-200 bg-orange-50/80 p-3 text-orange-700">Total<br /><strong>{formatCurrency(selectedQuote.total)}</strong></div>
             </div>
 
-            <div className="border-2 border-black p-4 text-xs font-mono uppercase text-gray-600">
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-xs uppercase text-slate-600">
               <strong>Observacoes:</strong> {selectedQuote.observations || 'Sem observacoes comerciais.'}
             </div>
           </div>

@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import api from '../services/api';
-import { ArrowLeft, Download, FileCheck, Loader2, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ChevronDown, Download, FileCheck, Loader2, Plus, Trash2 } from 'lucide-react';
 
 interface Client {
   id: string;
@@ -52,6 +52,64 @@ const shippingOptions = [
   { value: 'FRETE_INCLUSO', label: 'Frete incluso' },
   { value: 'FRETE_A_CALCULAR', label: 'Frete a calcular' },
 ];
+
+interface CommercialSelectProps {
+  options: Array<{ value: string; label: string }>;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+function CommercialSelect({ options, value, onChange }: CommercialSelectProps) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const selectedOption = options.find((option) => option.value === value);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (!wrapperRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className={`relative ${open ? 'z-[120]' : 'z-0'}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((current) => !current)}
+        className={`flex w-full items-center justify-between gap-3 rounded-2xl border bg-white/80 p-3 text-left text-xs font-extrabold uppercase text-slate-900 shadow-sm outline-none transition hover:border-orange-300 hover:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 ${open ? 'border-orange-300 ring-4 ring-orange-500/10' : 'border-slate-200'}`}
+      >
+        <span>{selectedOption?.label || 'Selecione'}</span>
+        <ChevronDown size={16} className={`text-slate-500 transition ${open ? 'rotate-180 text-orange-500' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="nexus-dropdown-panel">
+          {options.map((option) => {
+            const selected = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-xs font-bold uppercase transition ${selected ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'text-slate-700 hover:bg-orange-50 hover:text-orange-700'}`}
+              >
+                {option.label}
+                {selected && <span className="h-2 w-2 rounded-full bg-white" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -252,41 +310,41 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   }
 
   if (loadingData) {
-    return <div className="text-xs font-mono uppercase text-center py-12">Carregando entidades e catalogos...</div>;
+    return <div className="nexus-panel py-12 text-center text-xs font-semibold uppercase text-slate-500">Carregando entidades e catalogos...</div>;
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center border-b-2 border-black pb-4">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="nexus-page-header">
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Painel de Orcamentos</h2>
+        <h2 className="nexus-title">Painel de Orcamentos</h2>
       </div>
 
       {successMessage && (
-        <div className="border-2 border-black bg-green-50 p-4 text-xs font-mono uppercase text-black flex items-center gap-2">
+        <div className="nexus-alert-success flex items-center gap-2">
           <FileCheck size={16} className="text-green-600" /> [SUCESSO]: {successMessage}
         </div>
       )}
 
       {errorMessage && (
-        <div className="border-2 border-black bg-red-50 p-4 text-xs font-mono uppercase text-black">
+        <div className="nexus-alert-error">
           [ALERTA]: {errorMessage}
         </div>
       )}
 
       <form onSubmit={handleEmitirOrcamento} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-6">
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">1. Categoria</h3>
+        <div className="relative z-30 lg:col-span-1 space-y-6">
+          <div className="nexus-panel relative z-20 space-y-4">
+            <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">1. Categoria</h3>
             <div className="grid grid-cols-3 gap-2">
               {(['LSF', 'MM', 'CHALE'] as const).map((option) => (
                 <button
                   key={option}
                   type="button"
                   onClick={() => handleCategoryChange(option)}
-                  className={`border-2 border-black p-2 text-xs font-black uppercase ${category === option ? 'bg-black text-white' : 'bg-white text-black'}`}
+                  className={`rounded-xl border p-2 text-xs font-extrabold uppercase transition ${category === option ? 'border-orange-400 bg-orange-500 text-white shadow-lg shadow-orange-500/20' : 'border-slate-200 bg-white/80 text-slate-700 hover:border-orange-300 hover:text-orange-600'}`}
                 >
                   {option}
                 </button>
@@ -294,8 +352,8 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">2. Cliente</h3>
+          <div className="nexus-panel relative z-20 space-y-4">
+            <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">2. Cliente</h3>
             <div>
               <label className="block text-xs font-bold uppercase mb-1">Buscar por Razao Social ou CNPJ</label>
               <input
@@ -303,7 +361,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 value={clientSearch}
                 onChange={(e) => setClientSearch(e.target.value)}
                 placeholder="Digite parte do nome ou CNPJ..."
-                className="w-full border-2 border-black p-2 text-sm focus:outline-none"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
               />
               <div className="mt-1 text-[10px] font-mono uppercase text-gray-500">
                 {filteredClients.length} de {clients.length} clientes encontrados
@@ -312,7 +370,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <select
               value={selectedClientId}
               onChange={(e) => setSelectedClientId(e.target.value)}
-              className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
+              className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-medium uppercase outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
             >
               <option value="">-- Selecione o Cliente --</option>
               {clientOptions.map((client) => (
@@ -321,36 +379,28 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </select>
           </div>
 
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">3. Regras Comerciais</h3>
+          <div className="nexus-panel relative z-50 space-y-4 overflow-visible">
+            <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">3. Regras Comerciais</h3>
             <div>
               <label className="block text-xs font-bold uppercase mb-1">Condicao de Pagamento</label>
-              <select
+              <CommercialSelect
+                options={paymentOptions}
                 value={paymentCondition}
-                onChange={(e) => setPaymentCondition(e.target.value)}
-                className="w-full border-2 border-black p-2 text-xs bg-white font-black uppercase focus:outline-none"
-              >
-                {paymentOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+                onChange={setPaymentCondition}
+              />
             </div>
             <div>
               <label className="block text-xs font-bold uppercase mb-1">Tipo de Frete</label>
-              <select
+              <CommercialSelect
+                options={shippingOptions}
                 value={shippingType}
-                onChange={(e) => setShippingType(e.target.value)}
-                className="w-full border-2 border-black p-2 text-xs bg-white font-black uppercase focus:outline-none"
-              >
-                {shippingOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
+                onChange={setShippingType}
+              />
             </div>
           </div>
 
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2">4. Itens</h3>
+          <div className="nexus-panel relative z-0 space-y-4">
+            <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">4. Itens</h3>
             <div>
               <label className="block text-xs font-bold uppercase mb-1">Buscar por Codigo ou Descricao</label>
               <input
@@ -358,7 +408,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
                 placeholder="Digite codigo ou descricao do item..."
-                className="w-full border-2 border-black p-2 text-sm focus:outline-none mb-3"
+                className="mb-3 w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
               />
               <div className="mb-2 text-[10px] font-mono uppercase text-gray-500">
                 {filteredProducts.length} de {productsByCategory.length} itens da categoria {category}
@@ -367,7 +417,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
-                className="w-full border-2 border-black p-2 text-sm bg-white font-medium focus:outline-none uppercase"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-medium uppercase outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
               >
                 <option value="">-- Selecione o Produto --</option>
                 {productOptions.map((product) => (
@@ -384,30 +434,30 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 min="1"
                 value={quantityInput}
                 onChange={(e) => setQuantityInput(Number(e.target.value))}
-                className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono"
+                className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-mono outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
               />
             </div>
             <button
               type="button"
               onClick={handleAddItem}
-              className="w-full border-2 border-black bg-gray-200 p-2 text-xs font-black uppercase tracking-wider hover:bg-black hover:text-white transition-all flex items-center justify-center gap-2"
+              className="nexus-secondary-button w-full"
             >
               <Plus size={16} /> Inserir Item
             </button>
           </div>
         </div>
 
-        <div className="lg:col-span-2 space-y-6">
-          <div className="border-4 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between min-h-[400px]">
+        <div className="relative z-10 lg:col-span-2 space-y-6">
+          <div className="nexus-panel flex min-h-[400px] flex-col justify-between">
             <div>
-              <h3 className="text-md font-black uppercase tracking-widest border-b-2 border-black pb-3 mb-4 flex items-center justify-between">
+              <h3 className="mb-4 flex items-center justify-between border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">
                 <span>Composicao do Orcamento</span>
                 <span className="font-mono text-xs text-gray-500">ITENS: {items.length}</span>
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
-                    <tr className="border-b-2 border-black text-xs font-black uppercase text-gray-600">
+                    <tr className="border-b border-slate-200 text-xs font-bold uppercase text-slate-600">
                       <th className="pb-2">Codigo</th>
                       <th className="pb-2">Descricao</th>
                       <th className="pb-2 text-center">Qtd</th>
@@ -423,7 +473,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                       </tr>
                     ) : (
                       items.map((item, index) => (
-                        <tr key={item.product_id} className="hover:bg-gray-50">
+                        <tr key={item.product_id} className="hover:bg-orange-50/50">
                           <td className="py-2 font-mono text-xs">{item.codigo}</td>
                           <td className="py-2 uppercase font-bold text-xs">{item.descricao}</td>
                           <td className="py-2 text-center font-mono">{item.quantity}</td>
@@ -442,15 +492,15 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
             </div>
 
-            <div className="border-t-2 border-black pt-4 mt-6 space-y-4">
+            <div className="mt-6 space-y-4 border-t border-slate-200 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-black uppercase mb-1">Desconto</label>
-                  <input type="number" min="0" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono" />
+                  <input type="number" min="0" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-mono outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10" />
                 </div>
                 <div>
                   <label className="block text-xs font-black uppercase mb-1">Valor do Frete</label>
-                  <input type="number" min="0" value={shippingValue} onChange={(e) => setShippingValue(Number(e.target.value))} className="w-full border-2 border-black p-2 text-sm focus:outline-none font-mono" />
+                  <input type="number" min="0" value={shippingValue} onChange={(e) => setShippingValue(Number(e.target.value))} className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-mono outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10" />
                 </div>
               </div>
               <div>
@@ -459,10 +509,10 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
                   placeholder="Ex: Proposta valida por 10 dias."
-                  className="w-full border-2 border-black p-2 text-xs focus:outline-none h-16 resize-none"
+                  className="h-16 w-full resize-none rounded-2xl border border-slate-200 bg-white/80 p-3 text-xs outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
                 />
               </div>
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-100 border-2 border-black p-4 gap-4">
+              <div className="flex flex-col items-start justify-between gap-4 rounded-2xl border border-orange-200/70 bg-orange-50/60 p-4 md:flex-row md:items-center">
                 <div className="space-y-1">
                   <div className="text-xs font-black uppercase tracking-wider text-gray-600">Subtotal: {formatCurrency(subtotal)}</div>
                   <div className="text-xs font-black uppercase tracking-wider text-gray-600">Desconto: {formatCurrency(Number(discount || 0))}</div>
@@ -472,7 +522,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <button
                   type="submit"
                   disabled={generatingPdf || items.length === 0}
-                  className="w-full md:w-auto border-2 border-black bg-black text-white px-6 py-3 text-xs font-black uppercase tracking-widest hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-3 shadow-[3px_3px_0px_0px_rgba(0,0,0,0.2)]"
+                  className="nexus-primary-button w-full px-6 py-3 md:w-auto"
                 >
                   {generatingPdf ? (
                     <>
@@ -488,8 +538,8 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="border-2 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h3 className="text-sm font-black uppercase tracking-wider border-b-2 border-black pb-2 mb-4">Historico Recente</h3>
+          <div className="nexus-panel">
+            <h3 className="mb-4 border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">Historico Recente</h3>
             <div className="divide-y divide-gray-200">
               {quotes.slice(0, 5).map((quote) => (
                 <div key={quote.id} className="py-3 flex items-center justify-between gap-4 text-xs font-mono">

@@ -90,92 +90,100 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       .join(' | ');
   };
 
+  const cardClass = 'flex h-36 flex-col justify-between rounded-2xl border border-white/60 bg-white/70 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl';
+  const panelClass = 'rounded-2xl border border-white/60 bg-white/70 p-6 shadow-xl shadow-slate-900/5 backdrop-blur-xl';
+
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center border-b-2 border-black pb-4">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="flex flex-col gap-4 rounded-3xl border border-white/60 bg-white/55 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl md:flex-row md:items-center md:justify-between">
+        <button onClick={onBack} className="inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-600 shadow-sm transition hover:border-orange-300 hover:text-orange-600">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Core Analytics</h2>
+        <div className="md:text-right">
+          <p className="text-xs font-bold uppercase text-orange-600">Administrativo</p>
+          <h2 className="text-2xl font-extrabold uppercase text-slate-950">Core Analytics</h2>
+        </div>
       </div>
 
       {loading || !stats ? (
-        <div className="text-xs font-mono uppercase text-center py-12">Consolidando metricas operacionais...</div>
+        <div className="rounded-2xl border border-white/60 bg-white/70 py-12 text-center text-xs font-semibold uppercase text-slate-500 shadow-xl shadow-slate-900/5 backdrop-blur-xl">
+          Consolidando metricas operacionais...
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between h-36">
-              <div className="flex justify-between items-start">
-                <span className="text-xs font-black uppercase text-gray-500 tracking-wider">Orcado no Mes</span>
-                <TrendingUp size={20} />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <div className={cardClass}>
+              <div className="flex items-start justify-between">
+                <span className="text-xs font-bold uppercase text-slate-500">Orcado no mes</span>
+                <TrendingUp className="text-orange-500" size={20} />
               </div>
               <div>
-                <div className="text-3xl font-black font-mono tracking-tight">{formatCurrency(stats.valor_total_orcado_mes)}</div>
-                <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase">// pipeline comercial real</p>
+                <div className="text-3xl font-extrabold text-slate-950">{formatCurrency(stats.valor_total_orcado_mes)}</div>
+                <p className="mt-1 text-[11px] font-medium uppercase text-slate-400">pipeline comercial real</p>
               </div>
             </div>
 
-            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between h-36">
-              <div className="flex justify-between items-start">
-                <span className="text-xs font-black uppercase text-gray-500 tracking-wider">Clientes</span>
-                <Users size={20} />
+            <div className={cardClass}>
+              <div className="flex items-start justify-between">
+                <span className="text-xs font-bold uppercase text-slate-500">Clientes</span>
+                <Users className="text-orange-500" size={20} />
               </div>
               <div>
-                <div className="text-3xl font-black font-mono tracking-tight">{stats.total_clientes}</div>
-                <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase">// base compartilhada</p>
+                <div className="text-3xl font-extrabold text-slate-950">{stats.total_clientes}</div>
+                <p className="mt-1 text-[11px] font-medium uppercase text-slate-400">base compartilhada</p>
               </div>
             </div>
 
-            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between h-36">
-              <div className="flex justify-between items-start">
-                <span className="text-xs font-black uppercase text-gray-500 tracking-wider">Orcamentos</span>
-                <FileText size={20} />
+            <div className={cardClass}>
+              <div className="flex items-start justify-between">
+                <span className="text-xs font-bold uppercase text-slate-500">Orcamentos</span>
+                <FileText className="text-orange-500" size={20} />
               </div>
               <div>
-                <div className="text-3xl font-black font-mono tracking-tight">{stats.total_orcamentos}</div>
-                <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase">// emitidos no ERP</p>
+                <div className="text-3xl font-extrabold text-slate-950">{stats.total_orcamentos}</div>
+                <p className="mt-1 text-[11px] font-medium uppercase text-slate-400">emitidos no ERP</p>
               </div>
             </div>
 
-            <div className="border-4 border-black bg-white p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col justify-between h-36">
-              <div className="flex justify-between items-start">
-                <span className="text-xs font-black uppercase text-gray-500 tracking-wider">Conversao</span>
-                <Activity size={20} />
+            <div className={cardClass}>
+              <div className="flex items-start justify-between">
+                <span className="text-xs font-bold uppercase text-slate-500">Conversao</span>
+                <Activity className="text-orange-500" size={20} />
               </div>
               <div>
-                <div className="text-3xl font-black font-mono tracking-tight">{stats.taxa_conversao}%</div>
-                <p className="text-[10px] font-mono text-gray-400 mt-1 uppercase">// aprovados sobre emitidos</p>
+                <div className="text-3xl font-extrabold text-slate-950">{stats.taxa_conversao}%</div>
+                <p className="mt-1 text-[11px] font-medium uppercase text-slate-400">aprovados sobre emitidos</p>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4">Funil Comercial</h3>
-              <div className="font-mono text-xs space-y-2">
-                <p>Pendentes: <strong>{stats.orcamentos_pendentes}</strong></p>
-                <p>Aprovados: <strong>{stats.orcamentos_aprovados}</strong></p>
-                <p>Cancelados: <strong>{stats.orcamentos_cancelados}</strong></p>
-                <p>Aprovado no mes: <strong>{formatCurrency(stats.valor_total_aprovado_mes)}</strong></p>
-                <p>Ticket medio: <strong>{formatCurrency(stats.ticket_medio)}</strong></p>
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+            <div className={panelClass}>
+              <h3 className="mb-4 border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">Funil Comercial</h3>
+              <div className="space-y-3 text-sm text-slate-600">
+                <p className="flex justify-between gap-3">Pendentes <strong className="text-slate-950">{stats.orcamentos_pendentes}</strong></p>
+                <p className="flex justify-between gap-3">Aprovados <strong className="text-emerald-600">{stats.orcamentos_aprovados}</strong></p>
+                <p className="flex justify-between gap-3">Cancelados <strong className="text-red-600">{stats.orcamentos_cancelados}</strong></p>
+                <p className="flex justify-between gap-3">Aprovado no mes <strong className="text-slate-950">{formatCurrency(stats.valor_total_aprovado_mes)}</strong></p>
+                <p className="flex justify-between gap-3">Ticket medio <strong className="text-slate-950">{formatCurrency(stats.ticket_medio)}</strong></p>
               </div>
             </div>
 
-            <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4">Categoria Lider</h3>
-              <div className="text-4xl font-black font-mono">{stats.categoria_maior_faturamento || '-'}</div>
-              <p className="text-xs font-mono text-gray-500 uppercase mt-2">Maior faturamento nos itens orcados.</p>
+            <div className={panelClass}>
+              <h3 className="mb-4 border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">Categoria Lider</h3>
+              <div className="text-4xl font-extrabold text-slate-950">{stats.categoria_maior_faturamento || '-'}</div>
+              <p className="mt-2 text-xs font-medium uppercase text-slate-500">Maior faturamento nos itens orcados.</p>
             </div>
 
-            <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4">Produtos Mais Orcados</h3>
-              <div className="font-mono text-xs space-y-2">
+            <div className={panelClass}>
+              <h3 className="mb-4 border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">Produtos Mais Orcados</h3>
+              <div className="space-y-3 text-xs text-slate-600">
                 {stats.produtos_mais_orcados.length === 0 ? (
-                  <p className="text-gray-500 uppercase">Sem itens orcados ainda.</p>
+                  <p className="uppercase text-slate-500">Sem itens orcados ainda.</p>
                 ) : (
                   stats.produtos_mais_orcados.map((product) => (
-                    <p key={product.codigo} className="flex items-center gap-2">
-                      <ArrowUpRight size={14} /> <strong>{product.codigo}</strong> {product.quantidade} un.
+                    <p key={product.codigo} className="flex items-center gap-2 rounded-xl bg-slate-50/80 px-3 py-2">
+                      <ArrowUpRight className="text-orange-500" size={14} /> <strong>{product.codigo}</strong> {product.quantidade} un.
                     </p>
                   ))
                 )}
@@ -184,14 +192,14 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
 
           {user?.role === 'ADM' && (
-            <div className="border-2 border-black bg-white p-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-4 flex items-center gap-2">
-                <History size={16} /> Logs de Auditoria
+            <div className={panelClass}>
+              <h3 className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">
+                <History className="text-orange-500" size={16} /> Logs de Auditoria
               </h3>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
+              <div className="overflow-x-auto rounded-2xl border border-slate-200/70">
+                <table className="w-full text-left">
                   <thead>
-                    <tr className="bg-black text-white text-xs font-black uppercase tracking-wider">
+                    <tr className="bg-slate-900 text-xs font-bold uppercase text-white">
                       <th className="p-3 w-36">Data/Hora</th>
                       <th className="p-3 w-48">Usuario</th>
                       <th className="p-3 w-56">Acao</th>
@@ -199,22 +207,22 @@ export const Dashboard: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                       <th className="p-3">Alteracoes</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y-2 divide-black text-xs">
+                  <tbody className="divide-y divide-slate-200 text-xs">
                     {auditLogs.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-4 text-center font-mono text-gray-500 uppercase">Nenhuma edicao registrada.</td>
+                        <td colSpan={5} className="p-4 text-center font-semibold uppercase text-slate-500">Nenhuma edicao registrada.</td>
                       </tr>
                     ) : (
                       auditLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-gray-50">
+                        <tr key={log.id} className="transition hover:bg-orange-50/50">
                           <td className="p-3 font-mono">{formatDateTime(log.created_at)}</td>
                           <td className="p-3">
-                            <div className="font-bold uppercase">{log.user_name || 'Sistema'}</div>
-                            <div className="font-mono text-gray-500">{log.user_email}</div>
+                            <div className="font-bold uppercase text-slate-900">{log.user_name || 'Sistema'}</div>
+                            <div className="font-mono text-slate-500">{log.user_email}</div>
                           </td>
-                          <td className="p-3 font-bold uppercase">{describeAction(log.action)}</td>
-                          <td className="p-3 uppercase">{log.entity_label || log.entity_type}</td>
-                          <td className="p-3 font-mono">{describeChanges(log.changes)}</td>
+                          <td className="p-3 font-bold uppercase text-slate-700">{describeAction(log.action)}</td>
+                          <td className="p-3 uppercase text-slate-600">{log.entity_label || log.entity_type}</td>
+                          <td className="p-3 font-mono text-slate-600">{describeChanges(log.changes)}</td>
                         </tr>
                       ))
                     )}

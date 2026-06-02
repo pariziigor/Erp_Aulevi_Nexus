@@ -8,46 +8,47 @@ import { Quotes } from './pages/Quotes';
 import { Dashboard } from './pages/Dashboard';
 import { AdminUsers } from './pages/AdminUsers';
 import { SellerDashboard } from './pages/SellerDashboard';
-import { BarChart3, LogOut, Users, Package, FileText, LayoutGrid, Shield } from 'lucide-react';
+import { BarChart3, FileText, LayoutGrid, LogOut, Package, Shield, Users } from 'lucide-react';
 
 function DashboardPrincipal() {
   const { logout, user } = useAuth();
   const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes' | 'dashboard' | 'adminUsers' | 'sellerDashboard'>('menu');
+  const pageShell = 'min-h-screen px-4 py-6 sm:px-6 md:px-10 lg:px-16 lg:py-12';
+  const moduleCard = 'group flex h-44 cursor-pointer flex-col justify-between rounded-2xl border border-white/60 bg-white/70 p-6 shadow-xl shadow-slate-900/5 backdrop-blur-xl transition-all duration-200 hover:-translate-y-1 hover:border-orange-300/60 hover:bg-white/90 hover:shadow-2xl hover:shadow-orange-500/10';
 
-  // Redirecionamento condicional das telas
   if (activePage === 'crm') {
-    return <div className="min-h-screen p-8 md:p-16"><Clients onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><Clients onBack={() => setActivePage('menu')} /></div>;
   }
 
   if (activePage === 'products') {
-    return <div className="min-h-screen p-8 md:p-16"><Products onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><Products onBack={() => setActivePage('menu')} /></div>;
   }
 
   if (activePage === 'quotes') {
-    return <div className="min-h-screen p-8 md:p-16"><Quotes onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><Quotes onBack={() => setActivePage('menu')} /></div>;
   }
 
   if (activePage === 'sellerDashboard') {
-    return <div className="min-h-screen p-8 md:p-16"><SellerDashboard onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><SellerDashboard onBack={() => setActivePage('menu')} /></div>;
   }
 
   if (activePage === 'dashboard') {
     if (user?.role !== 'ADM') {
       return (
-        <div className="min-h-screen p-8 md:p-16">
+        <div className={pageShell}>
           <div className="space-y-6">
-            <button onClick={() => setActivePage('menu')} className="text-xs font-black uppercase tracking-wider hover:underline">
-              Voltar ao Menu
+            <button onClick={() => setActivePage('menu')} className="rounded-full border border-slate-200 bg-white/70 px-4 py-2 text-xs font-bold uppercase text-slate-600 shadow-sm backdrop-blur transition hover:border-orange-300 hover:text-orange-600">
+              Voltar ao menu
             </button>
-            <div className="border-4 border-black bg-white p-8 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-              <h2 className="text-2xl font-black uppercase tracking-tight">Acesso Restrito</h2>
-              <p className="mt-2 text-sm font-mono uppercase text-gray-600">Dashboard administrativo disponivel apenas para usuarios ADM.</p>
+            <div className="rounded-2xl border border-white/60 bg-white/75 p-8 shadow-2xl shadow-slate-900/10 backdrop-blur-xl">
+              <h2 className="text-2xl font-extrabold uppercase text-slate-900">Acesso restrito</h2>
+              <p className="mt-2 text-sm font-medium text-slate-500">Dashboard administrativo disponivel apenas para usuarios ADM.</p>
             </div>
           </div>
         </div>
       );
     }
-    return <div className="min-h-screen p-8 md:p-16"><Dashboard onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><Dashboard onBack={() => setActivePage('menu')} /></div>;
   }
 
   if (activePage === 'adminUsers') {
@@ -55,80 +56,69 @@ function DashboardPrincipal() {
       setActivePage('menu');
       return null;
     }
-    return <div className="min-h-screen p-8 md:p-16"><AdminUsers onBack={() => setActivePage('menu')} /></div>;
+    return <div className={pageShell}><AdminUsers onBack={() => setActivePage('menu')} /></div>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-between p-8 md:p-16">
-      {/* Header */}
-      <header className="border-b-4 border-black pb-6 flex justify-between items-end">
+    <div className="flex min-h-screen flex-col justify-between px-4 py-6 sm:px-6 md:px-10 lg:px-16 lg:py-12">
+      <header className="flex flex-col gap-5 rounded-3xl border border-white/60 bg-white/55 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-4xl font-black uppercase tracking-tighter">AULEVI NEXUS</h1>
-          <p className="text-sm font-medium text-gray-600 mt-1">
-            Olá, <span className="font-bold text-black">{user?.name}</span> ({user?.role}) — ERP Comercial
+          <div className="mb-3 inline-flex rounded-full border border-orange-200 bg-orange-50/80 px-3 py-1 text-[11px] font-bold uppercase text-orange-700">
+            ERP Comercial
+          </div>
+          <h1 className="text-3xl font-extrabold uppercase text-slate-950 md:text-5xl">AULEVI NEXUS</h1>
+          <p className="mt-2 text-sm font-medium text-slate-600">
+            Ola, <span className="font-bold text-slate-950">{user?.name}</span> ({user?.role})
           </p>
         </div>
-        <button 
+        <button
           onClick={logout}
-          className="border-2 border-black p-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider bg-white hover:bg-black hover:text-white transition-all"
+          className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-700 shadow-sm backdrop-blur transition hover:border-orange-300 hover:bg-orange-500 hover:text-white"
         >
           <LogOut size={16} /> Sair
         </button>
       </header>
 
-      {/* Grid de Módulos */}
-      <main className="my-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 py-12">
-        <div onClick={() => setActivePage('crm')} className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48">
-          <Users size={32} strokeWidth={2.5} />
-          <h2 className="text-xl font-bold uppercase tracking-tight">CRM Clientes</h2>
+      <main className="grid grid-cols-1 gap-5 py-10 md:grid-cols-2 lg:grid-cols-5">
+        <div onClick={() => setActivePage('crm')} className={moduleCard}>
+          <Users className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+          <h2 className="text-lg font-extrabold uppercase text-slate-900">CRM Clientes</h2>
         </div>
-        
-        <div onClick={() => setActivePage('products')} className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48">
-          <Package size={32} strokeWidth={2.5} />
-          <h2 className="text-xl font-bold uppercase tracking-tight">Catálogo Produtos</h2>
+
+        <div onClick={() => setActivePage('products')} className={moduleCard}>
+          <Package className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+          <h2 className="text-lg font-extrabold uppercase text-slate-900">Catalogo Produtos</h2>
         </div>
-        
-        <div 
-          onClick={() => setActivePage('quotes')}
-          className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48"
-        >
-          <FileText size={32} strokeWidth={2.5} />
-          <h2 className="text-xl font-bold uppercase tracking-tight">Orçamentos</h2>
+
+        <div onClick={() => setActivePage('quotes')} className={moduleCard}>
+          <FileText className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+          <h2 className="text-lg font-extrabold uppercase text-slate-900">Orcamentos</h2>
         </div>
-        
+
         {user?.role === 'SELLER' && (
-          <div 
-            onClick={() => setActivePage('sellerDashboard')}
-            className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48"
-          >
-            <BarChart3 size={32} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold uppercase tracking-tight">Meus Orcamentos</h2>
+          <div onClick={() => setActivePage('sellerDashboard')} className={moduleCard}>
+            <BarChart3 className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Meus Orcamentos</h2>
           </div>
         )}
 
         {user?.role === 'ADM' && (
-          <div 
-            onClick={() => setActivePage('dashboard')}
-            className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48"
-          >
-            <LayoutGrid size={32} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold uppercase tracking-tight">Dashboard</h2>
+          <div onClick={() => setActivePage('dashboard')} className={moduleCard}>
+            <LayoutGrid className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Dashboard</h2>
           </div>
         )}
 
         {user?.role === 'ADM' && (
-          <div 
-            onClick={() => setActivePage('adminUsers')}
-            className="border-2 border-black p-6 bg-white hover:bg-black hover:text-white transition-all cursor-pointer flex flex-col justify-between h-48"
-          >
-            <Shield size={32} strokeWidth={2.5} />
-            <h2 className="text-xl font-bold uppercase tracking-tight">Usuarios & Permissoes</h2>
+          <div onClick={() => setActivePage('adminUsers')} className={moduleCard}>
+            <Shield className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Usuarios & Permissoes</h2>
           </div>
         )}
       </main>
 
-      <footer className="text-xs font-mono text-gray-500 text-center border-t border-gray-300 pt-4">
-        Aulevi Nexus Core v1.0.0 // 2026
+      <footer className="rounded-full border border-white/60 bg-white/50 px-4 py-3 text-center text-xs font-medium text-slate-500 shadow-sm backdrop-blur">
+        Aulevi Nexus Core v1.0.0 / 2026
       </footer>
     </div>
   );
@@ -139,8 +129,8 @@ function AppContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F6] font-mono text-xs uppercase">
-        Carregando Módulos de Segurança...
+      <div className="flex min-h-screen items-center justify-center px-4 text-center text-xs font-semibold uppercase text-slate-500">
+        Carregando modulos de seguranca...
       </div>
     );
   }

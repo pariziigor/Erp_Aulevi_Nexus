@@ -82,31 +82,31 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 border-b-2 border-black pb-4 md:flex-row md:items-center md:justify-between">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="nexus-page-header">
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Administracao de Usuarios</h2>
-        <div className="flex items-center gap-2 text-xs font-mono bg-black text-white px-3 py-1 uppercase">
+        <h2 className="nexus-title">Administracao de Usuarios</h2>
+        <div className="nexus-badge">
           <Shield size={14} /> Acesso ADM
         </div>
       </div>
 
       {error && (
-        <div className="border-2 border-black bg-red-50 p-4 text-xs font-mono uppercase text-black">
+        <div className="nexus-alert-error">
           [ERRO]: {error}
         </div>
       )}
 
       {message && (
-        <div className="border-2 border-black bg-green-50 p-4 text-xs font-mono uppercase text-black">
+        <div className="nexus-alert-success">
           [OK]: {message}
         </div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <form onSubmit={handleCreateUser} className="lg:col-span-1 border-4 border-black bg-white p-6 space-y-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
-          <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 flex items-center gap-2">
+        <form onSubmit={handleCreateUser} className="nexus-panel space-y-5 lg:col-span-1">
+          <h3 className="flex items-center gap-2 border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">
             <UserPlus size={16} /> Novo Usuario
           </h3>
           <div>
@@ -128,24 +128,24 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <option value="ADM">Administrador</option>
             </select>
           </div>
-          <button disabled={saving} type="submit" className="w-full border-2 border-black bg-black p-3 text-xs font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+          <button disabled={saving} type="submit" className="nexus-primary-button w-full py-3">
             {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
             Criar Acesso
           </button>
         </form>
 
         <div className="lg:col-span-2 space-y-6">
-          <div className="border-2 border-black bg-white overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+          <div className="nexus-table-wrap">
+            <table className="w-full text-left">
               <thead>
-                <tr className="bg-black text-white text-xs font-black uppercase tracking-wider">
+                <tr className="nexus-table-head">
                   <th className="p-3">Usuario</th>
                   <th className="p-3 w-40">Permissao</th>
                   <th className="p-3 w-32">Status</th>
                   <th className="p-3 w-44 text-center">Acoes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y-2 divide-black text-sm">
+              <tbody className="divide-y divide-slate-200 text-sm">
                 {loading ? (
                   <tr>
                     <td colSpan={4} className="p-4 text-center font-mono text-xs uppercase text-gray-500">Carregando usuarios...</td>
@@ -156,7 +156,7 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   </tr>
                 ) : (
                   usersList.map((systemUser) => (
-                    <tr key={systemUser.id} className="hover:bg-gray-50">
+                    <tr key={systemUser.id} className="transition hover:bg-orange-50/50">
                       <td className="p-3">
                         <div className="font-bold uppercase">{systemUser.name}</div>
                         <div className="font-mono text-xs text-gray-500">{systemUser.email}</div>
@@ -173,7 +173,7 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                         </select>
                       </td>
                       <td className="p-3">
-                        <span className={`border border-black px-2 py-1 text-xs font-black uppercase ${systemUser.is_active ? 'bg-green-50' : 'bg-red-50'}`}>
+                        <span className={`rounded-full border px-2 py-1 text-xs font-bold uppercase ${systemUser.is_active ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-red-200 bg-red-50 text-red-700'}`}>
                           {systemUser.is_active ? 'Ativo' : 'Inativo'}
                         </span>
                       </td>
@@ -182,7 +182,7 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                           disabled={updatingUserId === systemUser.id}
                           type="button"
                           onClick={() => handleUpdateUser(systemUser, { is_active: !systemUser.is_active })}
-                          className="border-2 border-black px-3 py-2 text-xs font-black uppercase hover:bg-black hover:text-white transition-all disabled:opacity-50"
+                          className="nexus-secondary-button px-3 py-2"
                         >
                           {systemUser.is_active ? 'Desativar' : 'Ativar'}
                         </button>
@@ -194,8 +194,8 @@ export const AdminUsers: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </table>
           </div>
 
-          <div className="border-2 border-black bg-white p-5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            <h3 className="text-sm font-black uppercase tracking-widest border-b-2 border-black pb-2 mb-3 flex items-center gap-2">
+          <div className="nexus-panel p-5">
+            <h3 className="mb-3 flex items-center gap-2 border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">
               <Users size={16} /> Recomendacoes
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono uppercase text-gray-600">

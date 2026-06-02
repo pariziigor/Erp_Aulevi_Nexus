@@ -47,33 +47,33 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-center border-b-2 border-black pb-4">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="nexus-page-header">
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Catalogo de Estruturas & Insumos</h2>
-        <div className="flex items-center gap-2 text-xs font-mono bg-black text-white px-3 py-1 uppercase">
+        <h2 className="nexus-title">Catalogo de Estruturas & Insumos</h2>
+        <div className="nexus-badge">
           <Layers size={14} /> Total: {filteredProducts.length} itens
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <div className="nexus-filter-bar md:grid-cols-3">
         <div className="relative md:col-span-2">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por nome do insumo ou codigo..."
-            className="w-full border-2 border-black p-2 pl-10 text-sm focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 pl-10 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
           />
         </div>
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full border-2 border-black p-2 pl-10 text-sm focus:outline-none bg-white appearance-none font-bold uppercase tracking-tight"
+            className="w-full appearance-none rounded-2xl border border-slate-200 bg-white/80 p-3 pl-10 text-sm font-bold uppercase outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
           >
             <option value="ALL">Todas as Categorias</option>
             <option value="LSF">Light Steel Frame (LSF)</option>
@@ -84,12 +84,12 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       {loading ? (
-        <div className="text-xs font-mono uppercase text-center py-12">Sincronizando catalogo com o banco central...</div>
+        <div className="nexus-panel py-12 text-center text-xs font-semibold uppercase text-slate-500">Sincronizando catalogo com o banco central...</div>
       ) : (
-        <div className="border-2 border-black bg-white overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="nexus-table-wrap">
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-black text-white text-xs font-black uppercase tracking-wider">
+              <tr className="nexus-table-head">
                 <th className="p-3 w-32">Codigo</th>
                 <th className="p-3">Item / Descricao</th>
                 <th className="p-3 w-40">Categoria</th>
@@ -97,7 +97,7 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <th className="p-3 w-24 text-center">Unidade</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black text-sm">
+            <tbody className="divide-y divide-slate-200 text-sm">
               {filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-4 text-center font-mono text-xs text-gray-500 uppercase">
@@ -106,18 +106,18 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </tr>
               ) : (
                 filteredProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={product.id} className="transition-colors hover:bg-orange-50/50">
                     <td className="p-3 font-mono text-xs font-bold">{product.codigo}</td>
                     <td className="p-3">
                       <div className="font-bold uppercase">{product.descricao}</div>
                       <div className="text-xs text-gray-500 mt-0.5">{product.is_active ? 'Ativo no catalogo' : 'Inativo'}</div>
                     </td>
                     <td className="p-3 text-xs">
-                      <span className="border border-black px-2 py-0.5 font-black uppercase bg-gray-100">
+                      <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-1 font-bold uppercase text-slate-600">
                         {product.categoria}
                       </span>
                     </td>
-                    <td className="p-3 font-mono font-bold text-right text-black">
+                    <td className="p-3 text-right font-mono font-bold text-slate-950">
                       {formatCurrency(Number(product.preco))}
                     </td>
                     <td className="p-3 font-mono text-xs text-center uppercase font-medium">

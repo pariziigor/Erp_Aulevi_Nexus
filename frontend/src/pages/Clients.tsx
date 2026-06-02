@@ -196,39 +196,39 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 border-b-2 border-black pb-4 md:flex-row md:items-center md:justify-between">
-        <button onClick={onBack} className="flex items-center gap-2 text-xs font-black uppercase tracking-wider hover:underline">
-          <ArrowLeft size={16} /> Voltar ao Menu
+      <div className="nexus-page-header">
+        <button onClick={onBack} className="nexus-back-button">
+          <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="text-2xl font-black uppercase tracking-tight">Modulo CRM - Gestao de Clientes</h2>
+        <h2 className="nexus-title">Modulo CRM - Gestao de Clientes</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="border-2 border-black bg-black text-white px-4 py-2 text-xs font-black uppercase tracking-wider hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2"
+          className={showForm ? 'nexus-secondary-button' : 'nexus-primary-button'}
         >
           <Plus size={16} /> {showForm ? 'Fechar Form' : 'Novo Cliente'}
         </button>
       </div>
 
       {errorForm && (
-        <div className="border-2 border-black bg-red-50 p-4 text-xs font-mono uppercase text-black">
+        <div className="nexus-alert-error">
           [ERRO]: {errorForm}
         </div>
       )}
 
       {successMessage && (
-        <div className="border-2 border-black bg-green-50 p-4 text-xs font-mono uppercase text-black">
+        <div className="nexus-alert-success">
           [OK]: {successMessage}
         </div>
       )}
 
       {showForm && (
-        <form onSubmit={handleSalvarCliente} className="border-4 border-black bg-white p-6 md:p-8 space-y-6 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
+        <form onSubmit={handleSalvarCliente} className="nexus-panel space-y-6 p-6 md:p-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label className="block text-xs font-black uppercase mb-2">CNPJ</label>
               <div className="flex gap-2">
                 <input type="text" value={cnpj} onChange={(e) => setCnpj(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" placeholder="00000000000000" />
-                <button type="button" onClick={handleConsultarCNPJ} disabled={loadingCnpj} className="border-2 border-black bg-gray-200 px-4 text-xs font-black uppercase hover:bg-black hover:text-white transition-all disabled:opacity-50">
+                <button type="button" onClick={handleConsultarCNPJ} disabled={loadingCnpj} className="nexus-secondary-button px-4">
                   {loadingCnpj ? <Loader2 size={16} className="animate-spin" /> : 'Buscar'}
                 </button>
               </div>
@@ -293,29 +293,29 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          <button type="submit" className="w-full border-2 border-black bg-black p-3 text-xs font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all">
+          <button type="submit" className="nexus-primary-button w-full py-3">
             Efetivar Cadastro
           </button>
         </form>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-white border-2 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      <div className="nexus-filter-bar md:grid-cols-4">
         <div className="relative md:col-span-3">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Buscar por CNPJ, razao social, cidade, contato, email ou WhatsApp..."
-            className="w-full border-2 border-black p-2 pl-10 text-sm focus:outline-none"
+            className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 pl-10 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
           />
         </div>
         <div className="relative">
-          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-black" size={18} />
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <select
             value={ufFilter}
             onChange={(e) => setUfFilter(e.target.value)}
-            className="w-full border-2 border-black p-2 pl-10 text-sm focus:outline-none bg-white appearance-none font-bold uppercase"
+            className="w-full appearance-none rounded-2xl border border-slate-200 bg-white/80 p-3 pl-10 text-sm font-bold uppercase outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
           >
             <option value="ALL">Todos os UFs</option>
             {availableUfs.map((option) => (
@@ -326,12 +326,12 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </div>
 
       {loading ? (
-        <div className="text-xs font-mono uppercase text-center py-12">Sincronizando registros da nuvem...</div>
+        <div className="nexus-panel py-12 text-center text-xs font-semibold uppercase text-slate-500">Sincronizando registros da nuvem...</div>
       ) : (
-        <div className="border-2 border-black bg-white overflow-x-auto">
-          <table className="w-full text-left border-collapse">
+        <div className="nexus-table-wrap">
+          <table className="w-full text-left">
             <thead>
-              <tr className="bg-black text-white text-xs font-black uppercase tracking-wider">
+              <tr className="nexus-table-head">
                 <th className="p-3">CNPJ</th>
                 <th className="p-3">Razao Social</th>
                 <th className="p-3">Localizacao</th>
@@ -341,14 +341,14 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <th className="p-3 w-20 text-center">Acoes</th>
               </tr>
             </thead>
-            <tbody className="divide-y-2 divide-black text-sm">
+            <tbody className="divide-y divide-slate-200 text-sm">
               {filteredClients.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="p-4 text-center font-mono text-xs text-gray-500 uppercase">Nenhum cliente encontrado para os filtros.</td>
                 </tr>
               ) : (
                 filteredClients.map((client) => (
-                  <tr key={client.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={client.id} className="transition-colors hover:bg-orange-50/50">
                     <td className="p-3 font-mono text-xs">{client.cnpj}</td>
                     <td className="p-3 font-bold uppercase">{client.razao_social}</td>
                     <td className="p-3 text-xs uppercase font-medium">{client.cidade} / {client.uf}</td>
@@ -359,7 +359,7 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                       <button
                         type="button"
                         onClick={() => openEditClient(client)}
-                        className="inline-flex items-center justify-center border-2 border-black p-2 hover:bg-black hover:text-white transition-all"
+                        className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white/80 p-2 text-slate-600 transition hover:border-orange-300 hover:text-orange-600"
                         title="Editar contato"
                       >
                         <Edit3 size={16} />
@@ -375,13 +375,13 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {editingClient && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <form onSubmit={handleUpdateContact} className="w-full max-w-xl border-4 border-black bg-white p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] space-y-5">
-            <div className="flex items-start justify-between gap-4 border-b-2 border-black pb-3">
+          <form onSubmit={handleUpdateContact} className="nexus-panel w-full max-w-xl space-y-5 p-6">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-3">
               <div>
                 <h3 className="text-lg font-black uppercase tracking-tight">Editar Contato</h3>
                 <p className="text-xs font-mono uppercase text-gray-500">{editingClient.razao_social}</p>
               </div>
-              <button type="button" onClick={() => setEditingClient(null)} className="border-2 border-black p-2 hover:bg-black hover:text-white">
+              <button type="button" onClick={() => setEditingClient(null)} className="nexus-secondary-button p-2">
                 <X size={16} />
               </button>
             </div>
@@ -401,7 +401,7 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
               </div>
             </div>
-            <button disabled={savingEdit} type="submit" className="w-full border-2 border-black bg-black p-3 text-xs font-black uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+            <button disabled={savingEdit} type="submit" className="nexus-primary-button w-full py-3">
               {savingEdit ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
               Salvar Alteracao
             </button>
