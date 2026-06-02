@@ -77,8 +77,8 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           >
             <option value="ALL">Todas as Categorias</option>
             <option value="LSF">Light Steel Frame (LSF)</option>
-            <option value="MM">Madeiramento Metalico (MM)</option>
-            <option value="CHALE">Chales</option>
+            <option value="MM">Madeiramento Metálico (MM)</option>
+            <option value="CHALE">Chalés</option>
           </select>
         </div>
       </div>
@@ -90,10 +90,10 @@ export const Products: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <table className="w-full text-left">
             <thead>
               <tr className="nexus-table-head">
-                <th className="p-3 w-32">Codigo</th>
-                <th className="p-3">Item / Descricao</th>
+                <th className="p-3 w-32">Código</th>
+                <th className="p-3">Item / Descrição</th>
                 <th className="p-3 w-40">Categoria</th>
-                <th className="p-3 w-28 text-right">Preco Unit.</th>
+                <th className="p-3 w-28 text-right">Preço Unit.</th>
                 <th className="p-3 w-24 text-center">Unidade</th>
               </tr>
             </thead>

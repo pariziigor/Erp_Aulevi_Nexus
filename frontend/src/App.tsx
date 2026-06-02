@@ -42,7 +42,7 @@ function DashboardPrincipal() {
             </button>
             <div className="rounded-2xl border border-white/60 bg-white/75 p-8 shadow-2xl shadow-slate-900/10 backdrop-blur-xl">
               <h2 className="text-2xl font-extrabold uppercase text-slate-900">Acesso restrito</h2>
-              <p className="mt-2 text-sm font-medium text-slate-500">Dashboard administrativo disponivel apenas para usuarios ADM.</p>
+              <p className="mt-2 text-sm font-medium text-slate-500">Dashboard administrativo disponivel apenas para usuários ADM.</p>
             </div>
           </div>
         </div>
@@ -87,18 +87,18 @@ function DashboardPrincipal() {
 
         <div onClick={() => setActivePage('products')} className={moduleCard}>
           <Package className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
-          <h2 className="text-lg font-extrabold uppercase text-slate-900">Catalogo Produtos</h2>
+          <h2 className="text-lg font-extrabold uppercase text-slate-900">Catálogo Produtos</h2>
         </div>
 
         <div onClick={() => setActivePage('quotes')} className={moduleCard}>
           <FileText className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
-          <h2 className="text-lg font-extrabold uppercase text-slate-900">Orcamentos</h2>
+          <h2 className="text-lg font-extrabold uppercase text-slate-900">Orçamentos</h2>
         </div>
 
         {user?.role === 'SELLER' && (
           <div onClick={() => setActivePage('sellerDashboard')} className={moduleCard}>
             <BarChart3 className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
-            <h2 className="text-lg font-extrabold uppercase text-slate-900">Meus Orcamentos</h2>
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Meus Orçamentos</h2>
           </div>
         )}
 
@@ -112,7 +112,7 @@ function DashboardPrincipal() {
         {user?.role === 'ADM' && (
           <div onClick={() => setActivePage('adminUsers')} className={moduleCard}>
             <Shield className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
-            <h2 className="text-lg font-extrabold uppercase text-slate-900">Usuarios & Permissoes</h2>
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Usuários & Permissões</h2>
           </div>
         )}
       </main>

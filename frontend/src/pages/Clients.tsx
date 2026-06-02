@@ -234,7 +234,7 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               </div>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-black uppercase mb-2">Razao Social</label>
+              <label className="block text-xs font-black uppercase mb-2">Razão Social</label>
               <input type="text" required value={razaoSocial} onChange={(e) => setRazaoSocial(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none bg-gray-50" />
             </div>
             <div className="md:col-span-2">
@@ -242,18 +242,18 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               <input type="text" value={nomeFantasia} onChange={(e) => setNomeFantasia(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none bg-gray-50" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase mb-2">Situacao</label>
+              <label className="block text-xs font-black uppercase mb-2">Situação Cadastral</label>
               <input type="text" value={situacaoCadastral} onChange={(e) => setSituacaoCadastral(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none bg-gray-50" />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border-t-2 border-dashed border-gray-300 pt-4">
+          <div className="grid grid-cols-2 gap-4 border-t border-slate-200/70 pt-5 md:grid-cols-4">
             <div className="col-span-2 md:col-span-2">
-              <label className="block text-xs font-black uppercase mb-2">Endereco</label>
+              <label className="block text-xs font-black uppercase mb-2">Endereço</label>
               <input type="text" value={endereco} onChange={(e) => setEndereco(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-black uppercase mb-2">Numero</label>
+              <label className="block text-xs font-black uppercase mb-2">Número</label>
               <input type="text" value={numero} onChange={(e) => setNumero(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" />
             </div>
             <div>
@@ -274,7 +274,7 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 border-t-2 border-dashed border-gray-300 pt-4">
+          <div className="grid grid-cols-1 gap-6 border-t border-slate-200/70 pt-5 md:grid-cols-4">
             <div>
               <label className="block text-xs font-black uppercase mb-2">Nome do Contato</label>
               <input type="text" required value={contatoNome} onChange={(e) => setContatoNome(e.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" placeholder="Ex: Diretor de Compras" />
@@ -333,12 +333,12 @@ export const Clients: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             <thead>
               <tr className="nexus-table-head">
                 <th className="p-3">CNPJ</th>
-                <th className="p-3">Razao Social</th>
-                <th className="p-3">Localizacao</th>
+                <th className="p-3">Razão Social</th>
+                <th className="p-3">Localização</th>
                 <th className="p-3">Contato</th>
                 <th className="p-3">E-mail</th>
                 <th className="p-3">WhatsApp</th>
-                <th className="p-3 w-20 text-center">Acoes</th>
+                <th className="p-3 w-20 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 text-sm">

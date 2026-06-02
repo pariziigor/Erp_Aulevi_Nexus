@@ -250,11 +250,11 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     setSuccessMessage(null);
 
     if (!selectedClientId) {
-      setErrorMessage('Selecione um cliente corporativo valido.');
+      setErrorMessage('Selecione um cliente corporativo válido.');
       return;
     }
     if (items.length === 0) {
-      setErrorMessage('O orcamento precisa conter pelo menos 1 item.');
+      setErrorMessage('O orçamento precisa conter pelo menos 1 item.');
       return;
     }
     if (Number(discount || 0) > subtotal + Number(shippingValue || 0)) {
@@ -274,7 +274,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       shipping_type: shippingType,
       desconto: Number(discount || 0),
       valor_frete: Number(shippingValue || 0),
-      observations: observations || 'Proposta comercial padrao valida por 10 dias.',
+      observations: observations || 'Proposta comercial padrão válida por 10 dias.',
     };
 
     try {
@@ -295,7 +295,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       const quotesRes = await api.get('/quotes');
       setQuotes(quotesRes.data);
-      setSuccessMessage('Orcamento salvo como pendente e PDF gerado com sucesso.');
+      setSuccessMessage('Orçamento salvo como pendente e PDF gerado com sucesso.');
       setItems([]);
       setObservations('');
       setDiscount(0);
@@ -303,7 +303,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       setSelectedClientId('');
     } catch (err) {
       console.error(err);
-      setErrorMessage('Erro tecnico ao salvar o orcamento e compilar o PDF.');
+      setErrorMessage('Erro técnico ao salvar o orçamento e compilar o PDF.');
     } finally {
       setGeneratingPdf(false);
     }
@@ -319,7 +319,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <button onClick={onBack} className="nexus-back-button">
           <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="nexus-title">Painel de Orcamentos</h2>
+        <h2 className="nexus-title">Painel de Orçamentos</h2>
       </div>
 
       {successMessage && (
@@ -355,7 +355,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="nexus-panel relative z-20 space-y-4">
             <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">2. Cliente</h3>
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Buscar por Razao Social ou CNPJ</label>
+              <label className="block text-xs font-bold uppercase mb-1">Buscar por Razão Social ou CNPJ</label>
               <input
                 type="text"
                 value={clientSearch}
@@ -382,7 +382,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="nexus-panel relative z-50 space-y-4 overflow-visible">
             <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">3. Regras Comerciais</h3>
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Condicao de Pagamento</label>
+              <label className="block text-xs font-bold uppercase mb-1">Condição de Pagamento</label>
               <CommercialSelect
                 options={paymentOptions}
                 value={paymentCondition}
@@ -402,12 +402,12 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="nexus-panel relative z-0 space-y-4">
             <h3 className="border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">4. Itens</h3>
             <div>
-              <label className="block text-xs font-bold uppercase mb-1">Buscar por Codigo ou Descricao</label>
+              <label className="block text-xs font-bold uppercase mb-1">Buscar por Código ou Descrição</label>
               <input
                 type="text"
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                placeholder="Digite codigo ou descricao do item..."
+                placeholder="Digite código ou descrição do item..."
                 className="mb-3 w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10"
               />
               <div className="mb-2 text-[10px] font-mono uppercase text-gray-500">
@@ -451,25 +451,25 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           <div className="nexus-panel flex min-h-[400px] flex-col justify-between">
             <div>
               <h3 className="mb-4 flex items-center justify-between border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">
-                <span>Composicao do Orcamento</span>
+                <span>Composição do Orçamento</span>
                 <span className="font-mono text-xs text-gray-500">ITENS: {items.length}</span>
               </h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-slate-200 text-xs font-bold uppercase text-slate-600">
-                      <th className="pb-2">Codigo</th>
-                      <th className="pb-2">Descricao</th>
+                      <th className="pb-2">Código</th>
+                      <th className="pb-2">Descrição</th>
                       <th className="pb-2 text-center">Qtd</th>
-                      <th className="pb-2 text-right">Unitario</th>
+                      <th className="pb-2 text-right">Unitário</th>
                       <th className="pb-2 text-right">Subtotal</th>
-                      <th className="pb-2 text-center">Acoes</th>
+                      <th className="pb-2 text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y border-b text-sm font-medium">
                     {items.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center font-mono text-xs text-gray-400 uppercase">Nenhum item orcado ate o momento.</td>
+                        <td colSpan={6} className="py-8 text-center font-mono text-xs text-gray-400 uppercase">Nenhum item orçado até o momento.</td>
                       </tr>
                     ) : (
                       items.map((item, index) => (
@@ -504,7 +504,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-black uppercase mb-1">Observacoes Comerciais</label>
+                <label className="block text-xs font-black uppercase mb-1">Observações Comerciais</label>
                 <textarea
                   value={observations}
                   onChange={(e) => setObservations(e.target.value)}
@@ -539,7 +539,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </div>
 
           <div className="nexus-panel">
-            <h3 className="mb-4 border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">Historico Recente</h3>
+            <h3 className="mb-4 border-b border-slate-200 pb-2 text-sm font-extrabold uppercase text-slate-900">Histórico Recente</h3>
             <div className="divide-y divide-gray-200">
               {quotes.slice(0, 5).map((quote) => (
                 <div key={quote.id} className="py-3 flex items-center justify-between gap-4 text-xs font-mono">
@@ -549,7 +549,7 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
               ))}
               {quotes.length === 0 && (
-                <div className="py-4 text-center text-xs font-mono uppercase text-gray-500">Nenhum orcamento emitido.</div>
+                <div className="py-4 text-center text-xs font-mono uppercase text-gray-500">Nenhum orçamento emitido.</div>
               )}
             </div>
           </div>

@@ -160,7 +160,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
         <button onClick={onBack} className="nexus-back-button">
           <ArrowLeft size={16} /> Voltar ao menu
         </button>
-        <h2 className="nexus-title">Meu Painel de Orcamentos</h2>
+        <h2 className="nexus-title">Meu Painel de Orçamentos</h2>
         <div className="nexus-badge">
           {payload?.seller.name}
         </div>
@@ -191,7 +191,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
             <div className="text-2xl font-black font-mono">{formatCurrency(summary.valor_total_aprovado)}</div>
           </div>
           <div className="nexus-surface flex h-32 flex-col justify-between p-5">
-            <div className="text-xs font-black uppercase text-gray-500">Conversao</div>
+            <div className="text-xs font-black uppercase text-gray-500">Conversão</div>
             <div className="text-3xl font-black font-mono">{summary.taxa_conversao}%</div>
           </div>
         </div>
@@ -202,7 +202,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
           <div className="nexus-surface p-4">Pendentes: <strong>{summary.orcamentos_pendentes}</strong></div>
           <div className="nexus-surface p-4">Aprovados: <strong>{summary.orcamentos_aprovados}</strong></div>
           <div className="nexus-surface p-4">Cancelados: <strong>{summary.orcamentos_cancelados}</strong></div>
-          <div className="nexus-surface p-4">Ticket Medio: <strong>{formatCurrency(summary.ticket_medio)}</strong></div>
+          <div className="nexus-surface p-4">Ticket médio: <strong>{formatCurrency(summary.ticket_medio)}</strong></div>
         </div>
       )}
 
@@ -231,7 +231,7 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {filteredQuotes.length === 0 ? (
           <div className="nexus-panel md:col-span-2 xl:col-span-3 p-8 text-center text-xs font-semibold uppercase text-slate-500">
-            Nenhum orcamento encontrado.
+            Nenhum orçamento encontrado.
           </div>
         ) : (
           filteredQuotes.map((quote) => (
@@ -297,10 +297,10 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
               <table className="w-full text-left">
                 <thead>
                   <tr className="nexus-table-head">
-                    <th className="p-3">Codigo</th>
-                    <th className="p-3">Descricao</th>
+                    <th className="p-3">Código</th>
+                    <th className="p-3">Descrição</th>
                     <th className="p-3 text-center">Qtd</th>
-                    <th className="p-3 text-right">Unitario</th>
+                    <th className="p-3 text-right">Unitário</th>
                     <th className="p-3 text-right">Total</th>
                   </tr>
                 </thead>
