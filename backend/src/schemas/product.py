@@ -24,3 +24,9 @@ class ProductResponse(ProductBase):
 
     class Config:
         from_attributes = True
+
+class ProductImportResponse(BaseModel):
+    total_linhas: int
+    criados: int
+    atualizados: int
+    ignorados: int = 0
