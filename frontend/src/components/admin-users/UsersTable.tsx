@@ -12,7 +12,7 @@ interface UsersTableProps {
 export function UsersTable({ loading, updatingUserId, users, onResetPassword, onUpdateUser }: UsersTableProps) {
   return (
     <div className="nexus-table-wrap">
-      <table className="w-full text-left">
+      <table className="w-full min-w-[760px] text-left">
         <thead>
           <tr className="nexus-table-head">
             <th className="p-3">Usuário</th>
@@ -36,15 +36,15 @@ export function UsersTable({ loading, updatingUserId, users, onResetPassword, on
             users.map((systemUser) => (
               <tr key={systemUser.id} className="row-fade transition hover:bg-orange-50/50">
                 <td className="p-3">
-                  <div className="font-bold uppercase">{systemUser.name}</div>
-                  <div className="font-mono text-xs text-gray-500">{systemUser.email}</div>
+	                  <div className="line-clamp-2 break-words font-bold uppercase">{systemUser.name}</div>
+	                  <div className="break-all font-mono text-xs text-gray-500">{systemUser.email}</div>
                 </td>
                 <td className="p-3">
                   <select
                     value={systemUser.role}
                     disabled={updatingUserId === systemUser.id}
                     onChange={(event) => onUpdateUser(systemUser, { role: event.target.value as SystemUser['role'] })}
-                    className="w-full border-2 border-black bg-white p-2 text-xs font-black uppercase focus:outline-none disabled:opacity-50"
+	                    className="w-full rounded-xl border border-slate-200 bg-white/80 p-2 text-xs font-black uppercase focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-500/10 disabled:opacity-50"
                   >
                     <option value="SELLER">Vendedor</option>
                     <option value="ADM">Administrador</option>
@@ -68,7 +68,7 @@ export function UsersTable({ loading, updatingUserId, users, onResetPassword, on
                   </div>
                 </td>
                 <td className="p-3">
-                  <div className="flex flex-col gap-2">
+	                  <div className="flex flex-col gap-2 sm:min-w-36">
                     <button
                       disabled={updatingUserId === systemUser.id}
                       type="button"

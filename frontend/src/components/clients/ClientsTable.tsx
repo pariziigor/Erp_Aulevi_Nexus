@@ -13,8 +13,8 @@ export function ClientsTable({ clients, loading, onEditClient }: ClientsTablePro
   }
 
   return (
-    <div className="nexus-table-wrap">
-      <table className="w-full text-left">
+    <div className="nexus-table-wrap nexus-table-scroll">
+      <table className="w-full min-w-[880px] text-left">
         <thead>
           <tr className="nexus-table-head">
             <th className="p-3">CNPJ</th>
@@ -34,12 +34,18 @@ export function ClientsTable({ clients, loading, onEditClient }: ClientsTablePro
           ) : (
             clients.map((client) => (
               <tr key={client.id} className="transition-colors hover:bg-orange-50/50">
-                <td className="p-3 font-mono text-xs">{client.cnpj}</td>
-                <td className="p-3 font-bold uppercase">{client.razao_social}</td>
+                <td className="p-3 font-mono text-xs whitespace-nowrap">{client.cnpj}</td>
+                <td className="max-w-[280px] p-3 font-bold uppercase">
+                  <span className="line-clamp-2 break-words">{client.razao_social}</span>
+                </td>
                 <td className="p-3 text-xs uppercase font-medium">{client.cidade} / {client.uf}</td>
-                <td className="p-3 text-xs">{client.contato_nome}</td>
-                <td className="p-3 text-xs">{client.contato_email}</td>
-                <td className="p-3 font-mono text-xs">{client.contato_whatsapp}</td>
+                <td className="max-w-[180px] p-3 text-xs">
+                  <span className="line-clamp-2 break-words">{client.contato_nome || '-'}</span>
+                </td>
+                <td className="max-w-[220px] p-3 text-xs">
+                  <span className="line-clamp-2 break-all">{client.contato_email || '-'}</span>
+                </td>
+                <td className="p-3 font-mono text-xs whitespace-nowrap">{client.contato_whatsapp || '-'}</td>
                 <td className="p-3 text-center">
                   <button
                     type="button"

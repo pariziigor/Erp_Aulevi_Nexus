@@ -108,7 +108,7 @@ function ToastItem({ toast, onRemove, index }: ToastItemProps) {
       <button
         type="button"
         onClick={() => onRemove(toast.id)}
-        className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/70 hover:text-slate-600"
+	        className="no-hover-lift flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-white/70 hover:text-slate-600"
         aria-label="Fechar aviso"
       >
         <X size={14} />

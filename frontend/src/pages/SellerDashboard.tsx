@@ -15,6 +15,8 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedQuote, setSelectedQuote] = useState<SellerQuote | null>(null);
   const [downloadingQuoteId, setDownloadingQuoteId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const cardsPerPage = 6;
 
   useEffect(() => {
     async function fetchData() {
@@ -50,6 +52,12 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
       return matchesStatus && matchesSearch;
     });
   }, [quotes, search, statusFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredQuotes.length / cardsPerPage));
+  const firstQuoteIndex = (currentPage - 1) * cardsPerPage;
+  const paginatedQuotes = filteredQuotes.slice(firstQuoteIndex, firstQuoteIndex + cardsPerPage);
+  const showingFrom = filteredQuotes.length === 0 ? 0 : firstQuoteIndex + 1;
+  const showingTo = Math.min(firstQuoteIndex + cardsPerPage, filteredQuotes.length);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
@@ -129,18 +137,53 @@ export const SellerDashboard: React.FC<{ onBack: () => void }> = ({ onBack }) =>
         statusFilter={statusFilter}
         statusOptions={statusOptions}
         statusLabel={statusLabel}
-        onSearchChange={setSearch}
-        onStatusFilterChange={setStatusFilter}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setCurrentPage(1);
+        }}
+        onStatusFilterChange={(value) => {
+          setStatusFilter(value);
+          setCurrentPage(1);
+        }}
       />
 
       <SellerQuoteCards
-        quotes={filteredQuotes}
+        quotes={paginatedQuotes}
         formatCurrency={formatCurrency}
         formatDate={formatDate}
         statusClass={statusClass}
         statusLabel={statusLabel}
         onSelectQuote={setSelectedQuote}
       />
+
+      {filteredQuotes.length > cardsPerPage && (
+        <div className="nexus-panel flex flex-col gap-3 p-4 text-xs font-bold uppercase text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+          <span>
+            Mostrando {showingFrom}-{showingTo} de {filteredQuotes.length} orçamentos
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              className="nexus-secondary-button px-3 py-2"
+            >
+              Anterior
+            </button>
+            <span className="rounded-full border border-orange-200 bg-orange-50 px-3 py-2 text-orange-700">
+              {currentPage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              className="nexus-secondary-button px-3 py-2"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
 
       {selectedQuote && (
         <SellerQuoteDetailsModal

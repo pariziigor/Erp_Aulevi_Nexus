@@ -11,19 +11,19 @@
   }
 
   .nexus-title {
-    @apply text-2xl font-extrabold uppercase text-slate-950;
+    @apply min-w-0 break-words text-2xl font-extrabold uppercase leading-tight text-slate-950;
   }
 
   .nexus-back-button {
-    @apply inline-flex w-fit items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-600 shadow-sm transition hover:border-orange-300 hover:text-orange-600;
+    @apply inline-flex w-fit max-w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-600 shadow-sm transition hover:border-orange-300 hover:text-orange-600;
   }
 
   .nexus-primary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2.5 text-xs font-extrabold uppercase text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/25 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-2.5 text-center text-xs font-extrabold uppercase text-white shadow-lg shadow-orange-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-orange-500/25 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .nexus-secondary-button {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-xs font-bold uppercase text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-2.5 text-center text-xs font-bold uppercase text-slate-700 shadow-sm transition hover:border-orange-300 hover:text-orange-600 disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .nexus-surface {
@@ -47,11 +47,23 @@
   }
 
   .nexus-badge {
-    @apply inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50/80 px-3 py-1 text-xs font-bold uppercase text-orange-700;
+    @apply inline-flex w-fit max-w-full items-center gap-2 rounded-full border border-orange-200 bg-orange-50/80 px-3 py-1 text-xs font-bold uppercase text-orange-700;
   }
 
   .nexus-table-wrap {
     @apply overflow-x-auto rounded-2xl border border-slate-200/80 bg-white/70 shadow-xl shadow-slate-900/5 backdrop-blur-xl;
+  }
+
+  .nexus-table-scroll {
+    max-height: min(64vh, 720px);
+    overflow: auto;
+  }
+
+  .nexus-table-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #111827;
   }
 
   .nexus-table-head {
@@ -216,8 +228,7 @@ tr.bg-black {
   box-shadow: var(--app-shadow-soft);
 }
 
-header,
-[class*="border-b"] {
+header {
   box-shadow: none !important;
 }
 
@@ -241,9 +252,9 @@ button,
   border-radius: 14px !important;
 }
 
-button:not(:disabled):hover,
-[role="button"]:hover,
-.cursor-pointer:hover {
+button:not(:disabled):not(.no-hover-lift):hover,
+[role="button"]:not(.no-hover-lift):hover,
+.cursor-pointer:not(.no-hover-lift):hover {
   transform: translateY(-2px);
   box-shadow: var(--app-shadow) !important;
 }
@@ -337,32 +348,17 @@ thead tr:first-child th:last-child {
   letter-spacing: 0.01em;
 }
 
-.fixed > .bg-white,
-.fixed form.bg-white,
-.fixed div.bg-white {
-  background: rgba(255, 255, 255, 0.88) !important;
-  backdrop-filter: blur(22px);
-  box-shadow: 0 32px 90px rgba(15, 23, 42, 0.22) !important;
-}
-
 @supports (backdrop-filter: blur(1px)) {
-  .bg-white,
-  .bg-gray-50,
-  .bg-gray-100,
-  .bg-gray-200,
-  [class*="min-h-56"],
-  [class*="h-36"],
-  [class*="h-32"],
-  [class*="h-48"] {
+  .nexus-surface,
+  .nexus-panel,
+  .nexus-page-header,
+  .nexus-filter-bar,
+  .nexus-table-wrap {
     backdrop-filter: blur(18px);
   }
 }
 
 @media (max-width: 640px) {
-  .min-h-screen {
-    padding: 1rem !important;
-  }
-
   .p-8,
   .md\:p-8,
   .md\:p-12 {
@@ -380,6 +376,19 @@ thead tr:first-child th:last-child {
   }
 
   table {
-    min-width: 680px;
+    min-width: 640px;
+  }
+
+  .nexus-page-header {
+    align-items: stretch;
+  }
+
+  .nexus-page-header > * {
+    width: 100%;
+  }
+
+  .nexus-page-header .nexus-back-button,
+  .nexus-page-header .nexus-badge {
+    width: fit-content;
   }
 }

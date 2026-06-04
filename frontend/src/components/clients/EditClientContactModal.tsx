@@ -1,5 +1,6 @@
-import { Loader2, Save, X } from 'lucide-react';
+import { Loader2, Save } from 'lucide-react';
 import type React from 'react';
+import { Modal } from '../shared/Modal';
 import type { Client } from './types';
 
 interface EditClientContactModalProps {
@@ -28,16 +29,10 @@ export function EditClientContactModal({
   onWhatsappChange,
 }: EditClientContactModalProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <form onSubmit={onSubmit} className="nexus-panel w-full max-w-xl space-y-5 p-6">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 pb-3">
-          <div>
-            <h3 className="text-lg font-black uppercase tracking-tight">Editar Contato</h3>
-            <p className="text-xs font-mono uppercase text-gray-500">{client.razao_social}</p>
-          </div>
-          <button type="button" onClick={onClose} className="nexus-secondary-button p-2">
-            <X size={16} />
-          </button>
+    <Modal isOpen onClose={onClose} title="Editar contato" className="max-w-xl">
+      <form onSubmit={onSubmit} className="space-y-5">
+        <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+          <p className="break-words font-mono text-xs font-bold uppercase text-gray-500">{client.razao_social}</p>
         </div>
         <div className="space-y-4">
           <div>
@@ -60,6 +55,6 @@ export function EditClientContactModal({
           Salvar Alteração
         </button>
       </form>
-    </div>
+    </Modal>
   );
 }

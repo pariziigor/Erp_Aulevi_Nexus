@@ -24,21 +24,21 @@ export function ProductBulkActions({
           Planilha Excel com colunas: codigo, descricao, categoria, unidade_medida, preco, is_active.
         </p>
       </div>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <button type="button" onClick={onDownloadTemplate} className="nexus-secondary-button">
-          <FileDown size={16} /> Modelo Excel
-        </button>
+	      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end">
+	        <button type="button" onClick={onDownloadTemplate} className="nexus-secondary-button w-full sm:w-auto">
+	          <FileDown size={16} /> Modelo Excel
+	        </button>
         <LoadingButton
           type="button"
           onClick={onExportProducts}
           isLoading={exporting}
           loadingText="Exportando..."
           variant="secondary"
-          className="rounded-full px-4 py-2 text-xs font-bold uppercase"
-        >
-          Exportar Excel
-        </LoadingButton>
-        <label className="nexus-primary-button cursor-pointer">
+	          className="w-full rounded-full px-4 py-2 text-xs font-bold uppercase sm:w-auto"
+	        >
+	          Exportar Excel
+	        </LoadingButton>
+	        <label className="nexus-primary-button w-full cursor-pointer sm:w-auto">
           {importing ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
           Importar Excel
           <input

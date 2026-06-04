@@ -581,6 +581,11 @@
   }
 }
 
+/* ===== STAGGER & DELAY ANIMATIONS ===== */
+.fade-in-delay {
+  animation: fadeIn 0.5s ease-out 0.2s both;
+}
+
 /* ===== RESPONSIVE ANIMATION ADJUSTMENTS ===== */
 @media (max-width: 768px) {
   /* Shorter animations on mobile */

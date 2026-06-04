@@ -48,12 +48,12 @@ export function UserCreateForm({
           value={password}
           onChange={onPasswordChange}
           minLength={6}
-          className="rounded-none border-2 border-black bg-white p-2 pl-11 text-sm focus:ring-0"
+	          className="border-slate-200 bg-white/80 text-sm"
         />
       </div>
       <div>
         <label className="block text-xs font-black uppercase mb-2">Nível de Permissão</label>
-        <select value={role} onChange={(event) => onRoleChange(event.target.value as SystemUser['role'])} className="w-full border-2 border-black p-2 text-sm bg-white font-black uppercase focus:outline-none">
+	        <select value={role} onChange={(event) => onRoleChange(event.target.value as SystemUser['role'])} className="w-full rounded-2xl border border-slate-200 bg-white/80 p-3 text-sm font-black uppercase focus:border-orange-400 focus:outline-none focus:ring-4 focus:ring-orange-500/10">
           <option value="SELLER">Vendedor</option>
           <option value="ADM">Administrador</option>
         </select>

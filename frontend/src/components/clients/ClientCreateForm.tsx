@@ -16,12 +16,12 @@ export function ClientCreateForm({ form, loadingCnpj, onChange, onSearchCnpj, on
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
           <label className="block text-xs font-black uppercase mb-2">CNPJ</label>
-          <div className="flex gap-2">
-            <input type="text" value={form.cnpj} onChange={(event) => onChange('cnpj', event.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" placeholder="00000000000000" />
-            <button type="button" onClick={onSearchCnpj} disabled={loadingCnpj} className="nexus-secondary-button px-4">
-              {loadingCnpj ? <Loader2 size={16} className="animate-spin" /> : 'Buscar'}
-            </button>
-          </div>
+	          <div className="flex flex-col gap-2 sm:flex-row">
+	            <input type="text" value={form.cnpj} onChange={(event) => onChange('cnpj', event.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" placeholder="00000000000000" />
+	            <button type="button" onClick={onSearchCnpj} disabled={loadingCnpj} className="nexus-secondary-button px-4 sm:w-auto">
+	              {loadingCnpj ? <Loader2 size={16} className="animate-spin" /> : 'Buscar'}
+	            </button>
+	          </div>
         </div>
         <div className="md:col-span-2">
           <label className="block text-xs font-black uppercase mb-2">Razão Social</label>
@@ -37,8 +37,8 @@ export function ClientCreateForm({ form, loadingCnpj, onChange, onSearchCnpj, on
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 border-t border-slate-200/70 pt-5 md:grid-cols-4">
-        <div className="col-span-2 md:col-span-2">
+	      <div className="grid grid-cols-1 gap-4 border-t border-slate-200/70 pt-5 sm:grid-cols-2 md:grid-cols-4">
+	        <div className="sm:col-span-2 md:col-span-2">
           <label className="block text-xs font-black uppercase mb-2">Endereço</label>
           <input type="text" value={form.endereco} onChange={(event) => onChange('endereco', event.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" />
         </div>
@@ -50,7 +50,7 @@ export function ClientCreateForm({ form, loadingCnpj, onChange, onSearchCnpj, on
           <label className="block text-xs font-black uppercase mb-2">Bairro</label>
           <input type="text" value={form.bairro} onChange={(event) => onChange('bairro', event.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" />
         </div>
-        <div className="col-span-2 md:col-span-2">
+	        <div className="sm:col-span-2 md:col-span-2">
           <label className="block text-xs font-black uppercase mb-2">Cidade</label>
           <input type="text" value={form.cidade} onChange={(event) => onChange('cidade', event.target.value)} className="w-full border-2 border-black p-2 text-sm focus:outline-none" />
         </div>

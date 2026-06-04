@@ -24,20 +24,20 @@ export function Modal({
     <>
       {/* Backdrop */}
       {showBackdrop && (
-        <div
-          className="modal-backdrop-in fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+	        <div
+	          className="modal-backdrop-in fixed inset-0 z-40 bg-white/75 backdrop-blur-2xl"
           onClick={onClose}
         ></div>
       )}
 
       {/* Modal */}
       <div
-        className="modal-slide-up pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4"
+	        className="modal-slide-up pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4"
       >
         <div
           className={`
             pointer-events-auto
-            w-full max-w-lg
+	            max-h-[92vh] w-full max-w-lg
             rounded-2xl border border-slate-200
             bg-white/95 shadow-2xl
             backdrop-blur-xl
@@ -46,11 +46,11 @@ export function Modal({
           `}
         >
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-            <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-            <button
-              onClick={onClose}
-              className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+	          <div className="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4 sm:px-6">
+	            <h2 className="min-w-0 break-words text-lg font-bold text-slate-900 sm:text-xl">{title}</h2>
+	            <button
+	              onClick={onClose}
+	              className="no-hover-lift shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
               aria-label="Fechar"
             >
               <X size={20} />
@@ -58,7 +58,7 @@ export function Modal({
           </div>
 
           {/* Content */}
-          <div className="px-6 py-4 max-h-[70vh] overflow-y-auto">
+	          <div className="max-h-[72vh] overflow-y-auto px-5 py-4 sm:px-6">
             {children}
           </div>
         </div>
@@ -94,15 +94,15 @@ export function Drawer({
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="modal-backdrop-in fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+	      <div
+	        className="modal-backdrop-in fixed inset-0 z-40 bg-white/75 backdrop-blur-2xl"
         onClick={onClose}
       ></div>
 
       {/* Drawer */}
       <div
         className={`
-          fixed top-0 bottom-0 w-full max-w-md
+	          fixed top-0 bottom-0 w-full max-w-md
           ${positionClasses[position]}
           bg-white/95 shadow-2xl backdrop-blur-xl
           z-50 overflow-y-auto
@@ -111,11 +111,11 @@ export function Drawer({
         `}
       >
         {/* Header */}
-        <div className="sticky top-0 flex items-center justify-between border-b border-slate-200 px-6 py-4 bg-white/95 backdrop-blur">
-          <h2 className="text-xl font-bold text-slate-900">{title}</h2>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors"
+	        <div className="sticky top-0 flex items-start justify-between gap-4 border-b border-slate-200 bg-white/95 px-5 py-4 backdrop-blur sm:px-6">
+	          <h2 className="min-w-0 break-words text-lg font-bold text-slate-900 sm:text-xl">{title}</h2>
+	          <button
+	            onClick={onClose}
+	            className="no-hover-lift shrink-0 rounded-lg p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
             aria-label="Fechar"
           >
             <X size={20} />

@@ -16,7 +16,7 @@ function DashboardPrincipal() {
   const { logout, user } = useAuth();
   const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes' | 'dashboard' | 'adminUsers' | 'sellerDashboard'>('menu');
   const pageShell = 'page-enter min-h-screen px-4 py-6 will-animate sm:px-6 md:px-10 lg:px-16 lg:py-12';
-  const moduleCard = 'stagger-item hover-lift hover-glow group flex h-44 cursor-pointer flex-col justify-between rounded-2xl border border-white/60 bg-white/70 p-6 shadow-xl shadow-slate-900/5 backdrop-blur-xl transition-all duration-200 hover:border-orange-300/60 hover:bg-white/90 hover:shadow-2xl hover:shadow-orange-500/10';
+	  const moduleCard = 'stagger-item hover-lift hover-glow group flex min-h-40 cursor-pointer flex-col justify-between rounded-2xl border border-white/60 bg-white/70 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl transition-all duration-200 hover:border-orange-300/60 hover:bg-white/90 hover:shadow-2xl hover:shadow-orange-500/10 sm:p-6';
 
   if (activePage === 'crm') {
     return <div className={pageShell}><Clients onBack={() => setActivePage('menu')} /></div>;
@@ -75,13 +75,13 @@ function DashboardPrincipal() {
         </div>
         <button
           onClick={logout}
-          className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-700 shadow-sm backdrop-blur transition hover:border-orange-300 hover:bg-orange-500 hover:text-white"
+	          className="inline-flex w-fit items-center justify-center gap-2 rounded-full border border-slate-200 bg-white/80 px-4 py-2 text-xs font-bold uppercase text-slate-700 shadow-sm backdrop-blur transition hover:border-orange-300 hover:bg-orange-500 hover:text-white md:self-end"
         >
           <LogOut size={16} /> Sair
         </button>
       </header>
 
-      <main className="grid grid-cols-1 gap-5 py-10 md:grid-cols-2 lg:grid-cols-5">
+	      <main className="grid grid-cols-1 gap-5 py-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         <div onClick={() => setActivePage('crm')} className={moduleCard}>
           <Users className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
           <h2 className="text-lg font-extrabold uppercase text-slate-900">CRM Clientes</h2>

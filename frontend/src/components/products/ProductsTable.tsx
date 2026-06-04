@@ -10,8 +10,8 @@ const currencyFormatter = new Intl.NumberFormat('pt-BR', { style: 'currency', cu
 
 export function ProductsTable({ loading, products }: ProductsTableProps) {
   return (
-    <div className="nexus-table-wrap">
-      <table className="w-full text-left">
+    <div className="nexus-table-wrap nexus-table-scroll">
+      <table className="w-full min-w-[760px] text-left">
         <thead>
           <tr className="nexus-table-head">
             <th className="w-32 p-3">Código</th>
@@ -35,9 +35,9 @@ export function ProductsTable({ loading, products }: ProductsTableProps) {
           ) : (
             products.map((product) => (
               <tr key={product.id} className="row-fade transition-colors hover:bg-orange-50/50">
-                <td className="p-3 font-mono text-xs font-bold">{product.codigo}</td>
-                <td className="p-3">
-                  <div className="font-bold uppercase">{product.descricao}</div>
+	                <td className="p-3 font-mono text-xs font-bold whitespace-nowrap">{product.codigo}</td>
+	                <td className="p-3">
+	                  <div className="line-clamp-2 break-words font-bold uppercase">{product.descricao}</div>
                   <div className="mt-0.5 text-xs text-gray-500">
                     {product.is_active ? 'Ativo no catalogo' : 'Inativo'}
                   </div>
