@@ -76,4 +76,7 @@ class DashboardSummary(BaseModel):
     vendedor_maior_valor: Optional[dict] = None
     vendedor_maior_pedidos: Optional[dict] = None
     regiao_maior_vendas: Optional[dict] = None
+    ranking_vendedores: list[dict] = []
+    regioes_clientes_vendas: list[dict] = []
+    tempo_medio_conversao_horas: float = 0
     produtos_mais_orcados: list[dict]

@@ -6,6 +6,7 @@ import {
   FileText,
   MapPin,
   ShoppingBag,
+  Timer,
   Trophy,
   TrendingUp,
   Users,
@@ -70,6 +71,14 @@ export function DashboardMetrics({ stats, formatCurrency }: DashboardMetricsProp
       helper: stats.regiao_maior_vendas
         ? `${formatCurrency(stats.regiao_maior_vendas.value)} em ${stats.regiao_maior_vendas.orders} pedidos`
         : 'sem vendas por regiao',
+    },
+    {
+      label: 'Tempo ate pedido',
+      icon: <Timer className="text-orange-500" size={20} />,
+      value: stats.tempo_medio_conversao_horas
+        ? `${(stats.tempo_medio_conversao_horas / 24).toFixed(1)} dias`
+        : '-',
+      helper: 'media de conversao',
     },
   ], [formatCurrency, stats]);
 

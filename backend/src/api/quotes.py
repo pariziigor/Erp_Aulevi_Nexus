@@ -337,6 +337,55 @@ def resumo_dashboard(
         func.coalesce(func.sum(Quote.total), 0).desc()
     ).first()
 
+    seller_rankings = db.query(
+        User.name,
+        User.email,
+        func.count(Quote.id).label("orders"),
+        func.coalesce(func.sum(Quote.total), 0).label("value"),
+    ).join(Quote, Quote.seller_id == User.id).filter(
+        Quote.status.in_(sales_statuses)
+    ).group_by(User.name, User.email).order_by(
+        func.coalesce(func.sum(Quote.total), 0).desc(),
+        func.count(Quote.id).desc(),
+    ).limit(8).all()
+
+    client_regions = db.query(
+        func.coalesce(Client.uf, Client.cidade, "Sem regiao").label("region"),
+        func.count(Client.id).label("clients"),
+    ).filter(Client.is_active == True).group_by(
+        func.coalesce(Client.uf, Client.cidade, "Sem regiao")
+    ).all()
+
+    sales_regions = db.query(
+        func.coalesce(Client.uf, Client.cidade, "Sem regiao").label("region"),
+        func.coalesce(func.sum(Quote.total), 0).label("value"),
+        func.count(Quote.id).label("orders"),
+    ).join(Quote, Quote.client_id == Client.id).filter(
+        Quote.status.in_(sales_statuses)
+    ).group_by(func.coalesce(Client.uf, Client.cidade, "Sem regiao")).all()
+
+    region_map = {
+        row.region: {"region": row.region, "clients": row.clients, "orders": 0, "value": Decimal("0")}
+        for row in client_regions
+    }
+    for row in sales_regions:
+        region_map.setdefault(row.region, {"region": row.region, "clients": 0, "orders": 0, "value": Decimal("0")})
+        region_map[row.region]["orders"] = row.orders
+        region_map[row.region]["value"] = row.value
+
+    region_rankings = sorted(
+        region_map.values(),
+        key=lambda item: (item["value"], item["clients"], item["orders"]),
+        reverse=True,
+    )[:8]
+
+    conversion_seconds = db.query(
+        func.coalesce(func.avg(func.extract("epoch", Quote.updated_at - Quote.created_at)), 0)
+    ).filter(
+        Quote.status == QuoteStatus.CONVERTIDO_EM_PEDIDO,
+        Quote.updated_at.isnot(None),
+    ).scalar() or 0
+
     top_products = db.query(
         Product.codigo,
         Product.descricao,
@@ -373,6 +422,17 @@ def resumo_dashboard(
             "value": top_region.value,
             "orders": top_region.orders,
         } if top_region else None,
+        "ranking_vendedores": [
+            {
+                "name": row.name,
+                "email": row.email,
+                "orders": row.orders,
+                "value": row.value,
+            }
+            for row in seller_rankings
+        ],
+        "regioes_clientes_vendas": region_rankings,
+        "tempo_medio_conversao_horas": round(float(conversion_seconds) / 3600, 2),
         "produtos_mais_orcados": [
             {"codigo": row.codigo, "descricao": row.descricao, "quantidade": float(row.quantity)}
             for row in top_products
