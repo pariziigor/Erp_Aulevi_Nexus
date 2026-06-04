@@ -296,10 +296,45 @@ def resumo_dashboard(
         Quote.status.in_([QuoteStatus.APROVADO, QuoteStatus.CONVERTIDO_EM_PEDIDO])
     ).scalar()
 
+    sales_statuses = [QuoteStatus.APROVADO, QuoteStatus.CONVERTIDO_EM_PEDIDO]
+
     top_category = db.query(Product.categoria, func.coalesce(func.sum(QuoteItem.total_item), 0).label("value")).join(
         QuoteItem, QuoteItem.product_id == Product.id
     ).join(Quote, Quote.id == QuoteItem.quote_id).group_by(Product.categoria).order_by(
         func.coalesce(func.sum(QuoteItem.total_item), 0).desc()
+    ).first()
+
+    top_seller_value = db.query(
+        User.name,
+        User.email,
+        func.coalesce(func.sum(Quote.total), 0).label("value"),
+        func.count(Quote.id).label("orders"),
+    ).join(Quote, Quote.seller_id == User.id).filter(
+        Quote.status.in_(sales_statuses)
+    ).group_by(User.name, User.email).order_by(
+        func.coalesce(func.sum(Quote.total), 0).desc()
+    ).first()
+
+    top_seller_orders = db.query(
+        User.name,
+        User.email,
+        func.count(Quote.id).label("orders"),
+        func.coalesce(func.sum(Quote.total), 0).label("value"),
+    ).join(Quote, Quote.seller_id == User.id).filter(
+        Quote.status.in_(sales_statuses)
+    ).group_by(User.name, User.email).order_by(
+        func.count(Quote.id).desc(),
+        func.coalesce(func.sum(Quote.total), 0).desc(),
+    ).first()
+
+    top_region = db.query(
+        func.coalesce(Client.uf, Client.cidade, "Sem regiao").label("region"),
+        func.coalesce(func.sum(Quote.total), 0).label("value"),
+        func.count(Quote.id).label("orders"),
+    ).join(Quote, Quote.client_id == Client.id).filter(
+        Quote.status.in_(sales_statuses)
+    ).group_by(func.coalesce(Client.uf, Client.cidade, "Sem regiao")).order_by(
+        func.coalesce(func.sum(Quote.total), 0).desc()
     ).first()
 
     top_products = db.query(
@@ -321,6 +356,23 @@ def resumo_dashboard(
         "valor_total_aprovado_mes": approved_month,
         "ticket_medio": average_ticket,
         "categoria_maior_faturamento": top_category[0].value if top_category else None,
+        "vendedor_maior_valor": {
+            "name": top_seller_value.name,
+            "email": top_seller_value.email,
+            "value": top_seller_value.value,
+            "orders": top_seller_value.orders,
+        } if top_seller_value else None,
+        "vendedor_maior_pedidos": {
+            "name": top_seller_orders.name,
+            "email": top_seller_orders.email,
+            "orders": top_seller_orders.orders,
+            "value": top_seller_orders.value,
+        } if top_seller_orders else None,
+        "regiao_maior_vendas": {
+            "region": top_region.region,
+            "value": top_region.value,
+            "orders": top_region.orders,
+        } if top_region else None,
         "produtos_mais_orcados": [
             {"codigo": row.codigo, "descricao": row.descricao, "quantidade": float(row.quantity)}
             for row in top_products

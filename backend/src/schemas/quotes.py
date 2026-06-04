@@ -73,4 +73,7 @@ class DashboardSummary(BaseModel):
     valor_total_aprovado_mes: Decimal
     ticket_medio: Decimal
     categoria_maior_faturamento: Optional[str] = None
+    vendedor_maior_valor: Optional[dict] = None
+    vendedor_maior_pedidos: Optional[dict] = None
+    regiao_maior_vendas: Optional[dict] = None
     produtos_mais_orcados: list[dict]

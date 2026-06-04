@@ -16,10 +16,10 @@ export function AuditLogTable({ logs, describeAction, describeChanges, formatDat
       <h3 className="mb-4 flex items-center gap-2 border-b border-slate-200 pb-3 text-sm font-extrabold uppercase text-slate-900">
         <History className="text-orange-500" size={16} /> Logs de Auditoria
       </h3>
-      <div className="overflow-x-auto rounded-2xl border border-slate-200/70">
-        <table className="w-full text-left">
+	      <div className="nexus-table-scroll overflow-x-auto rounded-2xl border border-slate-200/70">
+	        <table className="w-full min-w-[980px] text-left">
           <thead>
-            <tr className="bg-slate-900 text-xs font-bold uppercase text-white">
+	            <tr className="bg-slate-900 text-xs font-bold uppercase text-white">
               <th className="p-3 w-36">Data/Hora</th>
               <th className="p-3 w-48">Usuário</th>
               <th className="p-3 w-56">Ação</th>

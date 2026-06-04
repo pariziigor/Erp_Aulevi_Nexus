@@ -7,9 +7,26 @@ export interface DashboardStats {
   taxa_conversao: number;
   valor_total_orcado_mes: number;
   valor_total_aprovado_mes: number;
-  ticket_medio: number;
-  categoria_maior_faturamento?: string | null;
-  produtos_mais_orcados: Array<{
+	  ticket_medio: number;
+	  categoria_maior_faturamento?: string | null;
+	  vendedor_maior_valor?: {
+	    name: string;
+	    email?: string;
+	    value: number;
+	    orders: number;
+	  } | null;
+	  vendedor_maior_pedidos?: {
+	    name: string;
+	    email?: string;
+	    orders: number;
+	    value: number;
+	  } | null;
+	  regiao_maior_vendas?: {
+	    region: string;
+	    value: number;
+	    orders: number;
+	  } | null;
+	  produtos_mais_orcados: Array<{
     codigo: string;
     descricao: string;
     quantidade: number;
