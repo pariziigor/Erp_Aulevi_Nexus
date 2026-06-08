@@ -33,3 +33,12 @@ export interface SelectOption {
   value: string;
   label: string;
 }
+
+export interface CommercialOption {
+  id: string;
+  code: string;
+  label: string;
+  description?: string;
+  sort_order: number;
+  is_active: boolean;
+}

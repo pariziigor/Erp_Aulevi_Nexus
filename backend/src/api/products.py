@@ -7,16 +7,18 @@ from typing import List
 from xml.etree import ElementTree as ET
 from xml.sax.saxutils import escape
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.models.audit_log import AuditLog
 from src.models.product import CategoryEnum, Product
-from src.models.user import RoleEnum, User
+from src.models.user import User
 from src.schemas.product import ProductCreate, ProductImportResponse, ProductResponse
 from src.services.auth import AuthService
+from src.services.access import get_active_user, require_admin
 
 router = APIRouter(prefix="/products", tags=["Produtos / Catalogo"])
 
@@ -25,13 +27,7 @@ XLSX_NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
 
 def _get_admin_user(db: Session, current_user) -> User:
-    user = db.query(User).filter(User.email == current_user.email, User.is_active == True).first()
-    if not user or user.role != RoleEnum.ADM:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Acesso negado. Apenas administradores podem importar ou exportar produtos.",
-        )
-    return user
+    return require_admin(db, current_user)
 
 
 def _parse_decimal(value: str, row_number: int) -> Decimal:
@@ -235,8 +231,13 @@ def _parse_xlsx_rows(content: bytes) -> tuple[set[str], list[dict]]:
 
 
 @router.post("", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-def cadastrar_produto(payload: ProductCreate, db: Session = Depends(get_db)):
+def cadastrar_produto(
+    payload: ProductCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(AuthService.obter_usuario_logado),
+):
     """Cadastra um novo produto no catalogo. Evita codigos duplicados."""
+    require_admin(db, current_user)
     codigo_uppercase = payload.codigo.strip().upper()
 
     produto_existente = db.query(Product).filter(Product.codigo == codigo_uppercase).first()
@@ -262,9 +263,26 @@ def cadastrar_produto(payload: ProductCreate, db: Session = Depends(get_db)):
 
 
 @router.get("", response_model=List[ProductResponse])
-def listar_todos_produtos(db: Session = Depends(get_db)):
+def listar_todos_produtos(
+    search: str | None = Query(default=None, max_length=120),
+    categoria: CategoryEnum | None = None,
+    skip: int = Query(default=0, ge=0),
+    limit: int | None = Query(default=None, ge=1, le=500),
+    db: Session = Depends(get_db),
+    current_user=Depends(AuthService.obter_usuario_logado),
+):
     """Lista todos os produtos ativos do catalogo."""
-    return db.query(Product).filter(Product.is_active == True).all()
+    get_active_user(db, current_user)
+    query = db.query(Product).filter(Product.is_active == True)
+    if search:
+        term = f"%{search.strip()}%"
+        query = query.filter(or_(Product.codigo.ilike(term), Product.descricao.ilike(term)))
+    if categoria:
+        query = query.filter(Product.categoria == categoria)
+    query = query.order_by(Product.codigo.asc()).offset(skip)
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()
 
 
 @router.get("/export")
@@ -391,8 +409,13 @@ async def importar_produtos_planilha(
 
 
 @router.get("/categoria/{categoria}", response_model=List[ProductResponse])
-def listar_produtos_por_categoria(categoria: CategoryEnum, db: Session = Depends(get_db)):
+def listar_produtos_por_categoria(
+    categoria: CategoryEnum,
+    db: Session = Depends(get_db),
+    current_user=Depends(AuthService.obter_usuario_logado),
+):
     """Filtra os produtos ativos por categoria (LSF, MM ou CHALE)."""
+    get_active_user(db, current_user)
     return db.query(Product).filter(
         Product.categoria == categoria,
         Product.is_active == True,

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { useAuth } from './context/useAuth';
 import { ToastProvider } from './components/shared/Toast';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import { Login } from './pages/Login';
 import { ChangePassword } from './pages/ChangePassword';
 import { Clients } from './pages/Clients';
@@ -10,11 +11,12 @@ import { Quotes } from './pages/Quotes';
 import { Dashboard } from './pages/Dashboard';
 import { AdminUsers } from './pages/AdminUsers';
 import { SellerDashboard } from './pages/SellerDashboard';
-import { BarChart3, FileText, LayoutGrid, LogOut, Package, Shield, Users } from 'lucide-react';
+import { CommercialSettings } from './pages/CommercialSettings';
+import { BarChart3, FileText, LayoutGrid, LogOut, Package, Settings, Shield, Users } from 'lucide-react';
 
 function DashboardPrincipal() {
   const { logout, user } = useAuth();
-  const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes' | 'dashboard' | 'adminUsers' | 'sellerDashboard'>('menu');
+  const [activePage, setActivePage] = useState<'menu' | 'crm' | 'products' | 'quotes' | 'dashboard' | 'adminUsers' | 'sellerDashboard' | 'commercialSettings'>('menu');
   const pageShell = 'page-enter min-h-screen px-4 py-6 will-animate sm:px-6 md:px-10 lg:px-16 lg:py-12';
 	  const moduleCard = 'stagger-item hover-lift hover-glow group flex min-h-40 cursor-pointer flex-col justify-between rounded-2xl border border-white/60 bg-white/70 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-xl transition-all duration-200 hover:border-orange-300/60 hover:bg-white/90 hover:shadow-2xl hover:shadow-orange-500/10 sm:p-6';
 
@@ -59,6 +61,14 @@ function DashboardPrincipal() {
       return null;
     }
     return <div className={pageShell}><AdminUsers onBack={() => setActivePage('menu')} /></div>;
+  }
+
+  if (activePage === 'commercialSettings') {
+    if (user?.role !== 'ADM') {
+      setActivePage('menu');
+      return null;
+    }
+    return <div className={pageShell}><CommercialSettings onBack={() => setActivePage('menu')} /></div>;
   }
 
   return (
@@ -117,6 +127,12 @@ function DashboardPrincipal() {
             <h2 className="text-lg font-extrabold uppercase text-slate-900">Usuários & Permissões</h2>
           </div>
         )}
+        {user?.role === 'ADM' && (
+          <div onClick={() => setActivePage('commercialSettings')} className={moduleCard}>
+            <Settings className="text-orange-500 transition group-hover:scale-110" size={32} strokeWidth={2.5} />
+            <h2 className="text-lg font-extrabold uppercase text-slate-900">Configuracoes Comerciais</h2>
+          </div>
+        )}
       </main>
 
       <footer className="fade-in-up rounded-full border border-white/60 bg-white/50 px-4 py-3 text-center text-xs font-medium text-slate-500 shadow-sm backdrop-blur">
@@ -146,11 +162,13 @@ function AppContent() {
 
 function App() {
   return (
-    <ToastProvider>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </ToastProvider>
+    <ErrorBoundary>
+      <ToastProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   );
 }
 

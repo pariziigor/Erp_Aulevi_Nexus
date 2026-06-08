@@ -1,41 +1,84 @@
-from datetime import datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from typing import List
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import extract, func
+from sqlalchemy import extract, func, text
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.models.client import Client
+from src.models.commercial import PaymentCondition, ShippingType
 from src.models.product import Product
-from src.models.quote import Quote, QuoteItem, QuoteStatus
+from src.models.quote import Quote, QuoteItem, QuoteSequence, QuoteStatus
 from src.models.user import RoleEnum, User
 from src.schemas.quotes import DashboardSummary, QuoteCreate, QuoteResponse, QuoteStatusUpdate
 from src.services.auth import AuthService
+from src.services.access import get_active_user, require_admin
 from src.services.pdf import PDFService
 
 router = APIRouter(prefix="/quotes", tags=["Orcamentos / Vendas"])
 
 
 def _get_current_seller(db: Session, current_user) -> User:
-    seller = db.query(User).filter(User.email == current_user.email, User.is_active == True).first()
-    if not seller:
-        raise HTTPException(status_code=404, detail="Usuario nao identificado ou inativo no ERP.")
-    return seller
+    return get_active_user(db, current_user)
 
 
 def _get_current_admin(db: Session, current_user) -> User:
-    admin = db.query(User).filter(User.email == current_user.email, User.is_active == True).first()
-    if not admin or admin.role != RoleEnum.ADM:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso restrito a administradores.")
-    return admin
+    return require_admin(db, current_user)
 
 
 def _can_access_quote(user: User, quote: Quote) -> bool:
     return user.role == RoleEnum.ADM or quote.seller_id == user.id
+
+
+ALLOWED_STATUS_TRANSITIONS = {
+    QuoteStatus.RASCUNHO: {QuoteStatus.PENDENTE, QuoteStatus.CANCELADO},
+    QuoteStatus.PENDENTE: {QuoteStatus.REVISADO, QuoteStatus.APROVADO, QuoteStatus.CANCELADO, QuoteStatus.EXPIRADO},
+    QuoteStatus.REVISADO: {QuoteStatus.PENDENTE, QuoteStatus.APROVADO, QuoteStatus.CANCELADO, QuoteStatus.EXPIRADO},
+    QuoteStatus.APROVADO: {QuoteStatus.CONVERTIDO_EM_PEDIDO, QuoteStatus.CANCELADO},
+    QuoteStatus.CANCELADO: set(),
+    QuoteStatus.EXPIRADO: {QuoteStatus.REVISADO},
+    QuoteStatus.CONVERTIDO_EM_PEDIDO: set(),
+}
+
+
+def _validate_status_transition(current: QuoteStatus, target: QuoteStatus) -> None:
+    if current == target:
+        return
+    if target not in ALLOWED_STATUS_TRANSITIONS[current]:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Transicao de status invalida: {current.value} -> {target.value}.",
+        )
+
+
+def _next_quote_number(db: Session, prefix: str, year: int) -> str:
+    lock_key = f"quote-sequence:{prefix}:{year}"
+    db.execute(text("SELECT pg_advisory_xact_lock(hashtext(:lock_key))"), {"lock_key": lock_key})
+
+    sequence = db.query(QuoteSequence).filter(
+        QuoteSequence.prefix == prefix,
+        QuoteSequence.year == year,
+    ).first()
+    if not sequence:
+        existing_numbers = db.query(Quote.numero_orcamento).filter(
+            Quote.numero_orcamento.like(f"{prefix}-{year}-%")
+        ).all()
+        existing_values = []
+        for (number,) in existing_numbers:
+            try:
+                existing_values.append(int(str(number).rsplit("-", 1)[-1]))
+            except ValueError:
+                continue
+        sequence = QuoteSequence(prefix=prefix, year=year, last_value=max(existing_values, default=0))
+        db.add(sequence)
+
+    sequence.last_value += 1
+    db.flush()
+    return f"{prefix}-{year}-{sequence.last_value:06d}"
 
 
 def _quote_detail_payload(quote: Quote) -> dict:
@@ -82,6 +125,22 @@ def _build_quote(payload: QuoteCreate, db: Session, seller: User, status_value: 
     if not client_exists:
         raise HTTPException(status_code=404, detail="Cliente nao encontrado ou inativo.")
 
+    if payload.payment_condition:
+        payment_exists = db.query(PaymentCondition.id).filter(
+            PaymentCondition.code == payload.payment_condition,
+            PaymentCondition.is_active == True,
+        ).first()
+        if not payment_exists:
+            raise HTTPException(status_code=400, detail="Condicao de pagamento invalida ou inativa.")
+
+    if payload.shipping_type:
+        shipping_exists = db.query(ShippingType.id).filter(
+            ShippingType.code == payload.shipping_type,
+            ShippingType.is_active == True,
+        ).first()
+        if not shipping_exists:
+            raise HTTPException(status_code=400, detail="Tipo de frete invalido ou inativo.")
+
     subtotal = Decimal("0")
     items_to_save = []
     product_categories = []
@@ -105,10 +164,7 @@ def _build_quote(payload: QuoteCreate, db: Session, seller: User, status_value: 
 
     prefix = product_categories[0] if product_categories else "ORC"
     current_year = datetime.now().year
-    existing_count = db.query(func.count(Quote.id)).filter(
-        Quote.numero_orcamento.like(f"{prefix}-{current_year}-%")
-    ).scalar() or 0
-    quote_number = f"{prefix}-{current_year}-{existing_count + 1:06d}"
+    quote_number = _next_quote_number(db, prefix, current_year)
 
     total = subtotal - payload.desconto + payload.valor_frete
     if total < 0:
@@ -133,7 +189,11 @@ def _build_quote(payload: QuoteCreate, db: Session, seller: User, status_value: 
     for item_data in items_to_save:
         db.add(QuoteItem(quote_id=quote.id, **item_data))
 
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     db.refresh(quote)
     return quote
 
@@ -182,6 +242,12 @@ def gerar_orcamento_pdf(
 
 @router.get("", response_model=List[QuoteResponse])
 def listar_orcamentos(
+    quote_status: QuoteStatus | None = Query(default=None, alias="status"),
+    vendor_id: UUID | None = None,
+    data_inicio: date | None = None,
+    data_fim: date | None = None,
+    skip: int = Query(default=0, ge=0),
+    limit: int | None = Query(default=None, ge=1, le=500),
     db: Session = Depends(get_db),
     current_user=Depends(AuthService.obter_usuario_logado),
 ):
@@ -189,7 +255,18 @@ def listar_orcamentos(
     query = db.query(Quote)
     if user.role != RoleEnum.ADM:
         query = query.filter(Quote.seller_id == user.id)
-    return query.order_by(Quote.created_at.desc()).all()
+    elif vendor_id:
+        query = query.filter(Quote.seller_id == vendor_id)
+    if quote_status:
+        query = query.filter(Quote.status == quote_status)
+    if data_inicio:
+        query = query.filter(Quote.created_at >= datetime.combine(data_inicio, time.min))
+    if data_fim:
+        query = query.filter(Quote.created_at <= datetime.combine(data_fim, time.max))
+    query = query.order_by(Quote.created_at.desc()).offset(skip)
+    if limit is not None:
+        query = query.limit(limit)
+    return query.all()
 
 
 @router.get("/seller/dashboard")
@@ -229,11 +306,16 @@ def atualizar_status_orcamento(
     quote_id: UUID,
     payload: QuoteStatusUpdate,
     db: Session = Depends(get_db),
+    current_user=Depends(AuthService.obter_usuario_logado),
 ):
+    user = _get_current_seller(db, current_user)
     quote = db.query(Quote).filter(Quote.id == quote_id).first()
     if not quote:
         raise HTTPException(status_code=404, detail="Orcamento nao encontrado.")
+    if not _can_access_quote(user, quote):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Acesso negado ao orcamento solicitado.")
 
+    _validate_status_transition(quote.status, payload.status)
     quote.status = payload.status
     quote.client_response = payload.client_response
     quote.responded_at = datetime.utcnow()

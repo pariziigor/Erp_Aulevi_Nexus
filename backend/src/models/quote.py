@@ -1,6 +1,6 @@
 # backend/src/models/quote.py
 import uuid
-from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime, Text
+from sqlalchemy import Column, String, Numeric, Enum, ForeignKey, DateTime, Integer, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from src.core.database import Base
@@ -65,3 +65,15 @@ class QuoteItem(Base):
     
     quote = relationship("Quote", back_populates="items")
     product = relationship("Product")
+
+
+class QuoteSequence(Base):
+    __tablename__ = "quote_sequences"
+    __table_args__ = (
+        UniqueConstraint("prefix", "year", name="uq_quote_sequences_prefix_year"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    prefix = Column(String, nullable=False)
+    year = Column(Integer, nullable=False)
+    last_value = Column(Integer, nullable=False, default=0)

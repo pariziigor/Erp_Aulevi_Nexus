@@ -15,8 +15,9 @@ from src.core.database import Base
 from src.models.user import User
 from src.models.client import Client
 from src.models.product import Product
-from src.models.quote import Quote, QuoteItem
+from src.models.quote import Quote, QuoteItem, QuoteSequence
 from src.models.audit_log import AuditLog
+from src.models.commercial import PaymentCondition, ShippingType
 
 # 3. Configurações base do Alembic
 config = context.config

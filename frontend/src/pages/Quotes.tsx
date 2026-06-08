@@ -4,32 +4,14 @@ import { ArrowLeft, FileCheck } from 'lucide-react';
 import { QuoteCompositionPanel } from '../components/quotes/QuoteCompositionPanel';
 import { CategorySelector, ClientSelector, CommercialRules, ProductSelector } from '../components/quotes/QuoteSidebar';
 import { RecentQuotesPanel } from '../components/quotes/RecentQuotesPanel';
-import type { ClientOption, ProductOption, QuoteItem, QuoteSummary } from '../components/quotes/types';
-
-const paymentOptions = [
-  { value: 'A_VISTA', label: 'A vista' },
-  { value: 'BOLETO', label: 'Boleto' },
-  { value: 'CARTAO', label: 'Cartão' },
-  { value: '30_DIAS', label: '30 dias' },
-  { value: '30_60', label: '30/60' },
-  { value: '30_60_90', label: '30/60/90' },
-  { value: 'ENTRADA_PARCELAS', label: 'Entrada + parcelas' },
-];
-
-const shippingOptions = [
-  { value: 'CIF', label: 'CIF' },
-  { value: 'FOB', label: 'FOB' },
-  { value: 'RETIRADA', label: 'Retirada' },
-  { value: 'ENTREGA_LOCAL', label: 'Entrega local' },
-  { value: 'TRANSPORTADORA', label: 'Transportadora' },
-  { value: 'FRETE_INCLUSO', label: 'Frete incluso' },
-  { value: 'FRETE_A_CALCULAR', label: 'Frete a calcular' },
-];
+import type { ClientOption, CommercialOption, ProductOption, QuoteItem, QuoteSummary } from '../components/quotes/types';
 
 export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const [clients, setClients] = useState<ClientOption[]>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
   const [quotes, setQuotes] = useState<QuoteSummary[]>([]);
+  const [paymentOptions, setPaymentOptions] = useState<CommercialOption[]>([]);
+  const [shippingOptions, setShippingOptions] = useState<CommercialOption[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   const [category, setCategory] = useState<'LSF' | 'MM' | 'CHALE'>('LSF');
@@ -52,14 +34,20 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   useEffect(() => {
     async function loadInitialData() {
       try {
-        const [clientsRes, productsRes, quotesRes] = await Promise.all([
+        const [clientsRes, productsRes, quotesRes, paymentRes, shippingRes] = await Promise.all([
           api.get('/clients'),
           api.get('/products'),
           api.get('/quotes'),
+          api.get('/commercial-options/payment-conditions'),
+          api.get('/commercial-options/shipping-types'),
         ]);
         setClients(clientsRes.data);
         setProducts(productsRes.data);
         setQuotes(quotesRes.data);
+        setPaymentOptions(paymentRes.data);
+        setShippingOptions(shippingRes.data);
+        setPaymentCondition(paymentRes.data[0]?.code || '');
+        setShippingType(shippingRes.data[0]?.code || '');
       } catch (err) {
         console.error('Erro ao carregar dados para orçamentos', err);
         setErrorMessage('Falha ao sincronizar clientes, produtos ou histórico.');
@@ -261,9 +249,9 @@ export const Quotes: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             onSearchChange={setClientSearch}
           />
           <CommercialRules
-            paymentOptions={paymentOptions}
+            paymentOptions={paymentOptions.map((option) => ({ value: option.code, label: option.label }))}
             paymentCondition={paymentCondition}
-            shippingOptions={shippingOptions}
+            shippingOptions={shippingOptions.map((option) => ({ value: option.code, label: option.label }))}
             shippingType={shippingType}
             onPaymentChange={setPaymentCondition}
             onShippingChange={setShippingType}
