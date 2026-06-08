@@ -78,7 +78,7 @@ function DashboardPrincipal() {
           <div className="badge-pop-in mb-3 inline-flex rounded-full border border-orange-200 bg-orange-50/80 px-3 py-1 text-[11px] font-bold uppercase text-orange-700">
             ERP Comercial
           </div>
-          <h1 className="text-3xl font-extrabold uppercase text-slate-950 md:text-5xl">AULEVI NEXUS</h1>
+          <h1 className="text-3xl font-extrabold text-slate-950 md:text-5xl">ALVance</h1>
           <p className="mt-2 text-sm font-medium text-slate-600">
             Ola, <span className="font-bold text-slate-950">{user?.name}</span> ({user?.role})
           </p>
@@ -136,7 +136,7 @@ function DashboardPrincipal() {
       </main>
 
       <footer className="fade-in-up rounded-full border border-white/60 bg-white/50 px-4 py-3 text-center text-xs font-medium text-slate-500 shadow-sm backdrop-blur">
-        Aulevi Nexus Core v1.0.0 / 2026
+        ALVance v1.0.0 / 2026
       </footer>
     </div>
   );
@@ -148,7 +148,7 @@ function AppContent() {
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center px-4 text-center text-xs font-semibold uppercase text-slate-500">
-        Carregando modulos de seguranca...
+        Carregando módulos de seguranca...
       </div>
     );
   }

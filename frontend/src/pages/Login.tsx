@@ -71,9 +71,9 @@ export const Login: React.FC = () => {
             </div>
 
             <div className="mt-7 hidden max-w-2xl lg:block">
-              <p className="text-xs font-bold uppercase text-orange-400">Inteligencia comercial integrada</p>
+              <p className="text-xs font-bold uppercase text-orange-400">Inteligência comercial integrada</p>
               <h1 className="mt-3 text-4xl font-black leading-tight text-white xl:text-5xl">
-                Operacao comercial clara, rapida e conectada.
+                Operação comercial clara, rápida e conectada.
               </h1>
               <p className="mt-5 max-w-xl text-base leading-7 text-slate-400">
                 Centralize clientes, produtos, propostas e resultados em um ambiente preparado para o ritmo da sua equipe.
