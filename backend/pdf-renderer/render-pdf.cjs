@@ -1,4 +1,5 @@
 const puppeteer = require("puppeteer");
+const path = require("node:path");
 
 function readStdin() {
   return new Promise((resolve, reject) => {
@@ -25,7 +26,7 @@ async function launchBrowser() {
   });
 }
 
-async function renderPdf(html) {
+async function renderPdf(html, stylesheetPath) {
   const browser = await launchBrowser();
 
   try {
@@ -34,6 +35,10 @@ async function renderPdf(html) {
       waitUntil: ["load", "networkidle0"],
       timeout: 30000,
     });
+
+    if (stylesheetPath) {
+      await page.addStyleTag({ path: path.resolve(stylesheetPath) });
+    }
 
     await page.emulateMediaType("print");
 
@@ -58,11 +63,12 @@ async function main() {
   }
 
   const html = await readStdin();
+  const stylesheetPath = process.argv[2];
   if (!html.trim()) {
     throw new Error("Nenhum conteúdo HTML foi recebido pelo renderizador.");
   }
 
-  const pdf = await renderPdf(html);
+  const pdf = await renderPdf(html, stylesheetPath);
   process.stdout.write(Buffer.from(pdf));
 }
 

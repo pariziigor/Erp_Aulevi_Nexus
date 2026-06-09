@@ -1,6 +1,7 @@
 import os
 import subprocess
 from decimal import Decimal
+from functools import lru_cache
 from io import BytesIO
 from pathlib import Path
 
@@ -11,6 +12,8 @@ from jinja2 import Environment, FileSystemLoader
 class PDFService:
     _BASE_DIR = Path(__file__).resolve().parents[2]
     _RENDERER_PATH = _BASE_DIR / "pdf-renderer" / "render-pdf.cjs"
+    _TEMPLATES_DIR = _BASE_DIR / "src" / "templates"
+    _STYLESHEET_PATH = _TEMPLATES_DIR / "quote_pdf.css"
 
     @staticmethod
     def _format_brl(value) -> str:
@@ -35,17 +38,20 @@ class PDFService:
         return labels.get(str(value), str(value).replace("_", " ").title())
 
     @staticmethod
+    @lru_cache(maxsize=1)
+    def _get_template_environment() -> Environment:
+        env = Environment(loader=FileSystemLoader(PDFService._TEMPLATES_DIR))
+        env.filters["brl"] = PDFService._format_brl
+        env.filters["commercial_label"] = PDFService._commercial_label
+        return env
+
+    @staticmethod
     def gerar_pdf_orcamento(quote, client, items_details) -> BytesIO:
         """
         Compila o template HTML com os dados dinâmicos do banco
         e o converte em PDF usando o Chromium gerenciado pelo Puppeteer.
         """
-        base_dir = os.path.dirname(os.path.dirname(__file__))
-        templates_dir = os.path.join(base_dir, "templates")
-
-        env = Environment(loader=FileSystemLoader(templates_dir))
-        env.filters["brl"] = PDFService._format_brl
-        env.filters["commercial_label"] = PDFService._commercial_label
+        env = PDFService._get_template_environment()
         template = env.get_template("quote_pdf.html")
 
         html_content = template.render(
@@ -59,7 +65,11 @@ class PDFService:
 
         try:
             result = subprocess.run(
-                [node_binary, str(PDFService._RENDERER_PATH)],
+                [
+                    node_binary,
+                    str(PDFService._RENDERER_PATH),
+                    str(PDFService._STYLESHEET_PATH),
+                ],
                 input=html_content.encode("utf-8"),
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
